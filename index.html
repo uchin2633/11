@@ -1,458 +1,442 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>衛教電眼美女 - 終極轉場版</title>
+    <style>
+        /* --- 全域設定 --- */
+        body {
+            font-family: 'Microsoft JhengHei', sans-serif;
+            background-color: #fce4ec;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; margin: 0; overflow: hidden; user-select: none;
+        }
+        #game-container {
+            width: 900px; height: 600px;
+            background-color: #fdf2f8;
+            border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            position: relative; overflow: hidden; border: 8px solid #f8bbd0;
+        }
+        
+        /* --- 狀態欄 --- */
+        #status-bar {
+            position: absolute; top: 0; left: 0; right: 0;
+            display: flex; justify-content: space-between;
+            background: rgba(253, 242, 248, 0.95); padding: 12px 25px;
+            font-weight: bold; color: #ad1457; z-index: 100; font-size: 19px;
+            border-bottom: 3px solid #f48fb1;
+        }
+
+        /* --- 圖片背景 --- */
+        #world {
+            position: absolute; top: 0; left: 0;
+            width: 3000px; height: 100%;
+            transition: transform 0.1s linear;
+            background-image: url('bg.jpg'); 
+            background-size: auto 100%;
+            background-repeat: repeat-x;
+            background-position: left top;
+        }
+
+        /* --- 圖片版女主角設定 --- */
+        #girl {
+            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+            width: 140px; height: 260px; 
+            background-image: url('girl.png');
+            background-size: contain;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+            z-index: 50; 
+            pointer-events: none; /* 防擋點擊 */
+        }
+        #girl.walking { animation: walkBounce 0.3s infinite alternate; }
+        @keyframes walkBounce { 0% { bottom: 80px; } 100% { bottom: 95px; } }
+
+        /* --- 圖片版男生設定 --- */
+        .boy { 
+            position: absolute; bottom: 80px; 
+            width: 140px; height: 280px; 
+            cursor: pointer; z-index: 40; transition: 0.3s; 
+            background-size: contain;
+            background-position: center bottom;
+            background-repeat: no-repeat;
+        }
+        .boy:hover { transform: scale(1.05); }
+        
+        .boy .status-face { 
+            position: absolute; top: 15%; left: 50%; transform: translateX(-50%); 
+            font-size: 50px; z-index: 45; display: none; 
+            text-shadow: 0 0 15px rgba(255,255,255,0.9);
+        }
+
+        /* --- 題目對話框 --- */
+        .bubble {
+            position: absolute; bottom: 300px; left: -30px; width: 180px;
+            background: rgba(255, 255, 255, 0.9); border: 4px solid #f48fb1; border-radius: 20px;
+            padding: 12px; font-size: 15px; color: #004080; font-weight: bold; text-align: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15); pointer-events: none;
+        }
+        .bubble::after { content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); border-width: 12px 12px 0; border-style: solid; border-color: #f48fb1 transparent transparent transparent; }
+        
+        /* 操作按鈕 */
+        #controls { position: absolute; bottom: 15px; left: 0; right: 0; display: flex; justify-content: center; gap: 25px; z-index: 100; }
+        .move-btn { padding: 12px 35px; font-size: 20px; border: none; border-radius: 30px; background-color: #ec407a; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 5px #ad1457; transition: 0.2s; }
+        .move-btn:active { box-shadow: 0 1px #ad1457; transform: translateY(4px); }
+        
+        /* 雷射光特效 */
+        .laser { position: absolute; height: 10px; background: linear-gradient(90deg, #ff33cc, #fff); box-shadow: 0 0 15px #ff33cc, 0 0 30px #fff; transform-origin: left center; z-index: 60; border-radius: 5px; pointer-events: none; }
+        
+        /* 轉場與開始畫面 */
+        #overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255, 240, 245, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; }
+        #overlay h1 { color: #d81b60; font-size: 36px; margin-bottom: 10px; text-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        #overlay p { font-size: 20px; color: #ad1457; font-weight: bold; margin-bottom: 25px; text-align: center; }
+        #start-btn { padding: 18px 50px; font-size: 22px; background-color: #43a047; color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 6px #1b5e20; transition: 0.2s;}
+        #start-btn:active { transform: translateY(4px); box-shadow: 0 2px #1b5e20; }
+    </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="zh-TW"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;衛教電眼美女&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* --- 全域設定 --- */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-family: 'Microsoft JhengHei', sans-serif;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-color: #fce4ec;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex; justify-content: center; align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>height: 100vh; margin: 0; overflow: hidden; user-select: none;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#game-container {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>width: 900px; height: 600px; max-width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-color: #fdf2f8;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 20px; box-shadow: 0 15px 30px rgba(0,0,0,0.3);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: relative; overflow: hidden; border: 8px solid #f8bbd0;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* --- 狀態欄 --- */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#status-bar {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: absolute; top: 0; left: 0; right: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex; justify-content: space-between;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(253, 242, 248, 0.95); padding: 12px 25px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold; color: #ad1457; z-index: 100; font-size: 19px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 3px solid #f48fb1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* --- 圖片背景 --- */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#world {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: absolute; top: 0; left: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>width: 3000px; height: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transition: transform 0.1s linear;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-image: url('bg.jpg');<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-size: auto 100%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-repeat: repeat-x;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-position: left top;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* --- 圖片版女主角設定 --- */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#girl {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>width: 140px; height: 260px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-image: url('girl.png');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-size: contain;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-position: center bottom;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-repeat: no-repeat;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>z-index: 50;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>pointer-events: none; /* 防擋點擊 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#girl.walking { animation: walkBounce 0.3s infinite alternate; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>@keyframes walkBounce { 0% { bottom: 80px; } 100% { bottom: 95px; } }</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* --- 圖片版男生設定 --- */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.boy {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: absolute; bottom: 80px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>width: 140px; height: 280px;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer; z-index: 40; transition: 0.3s;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-size: contain;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-position: center bottom;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background-repeat: no-repeat;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.boy:hover { transform: scale(1.05); }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.boy .status-face {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: absolute; top: 15%; left: 50%; transform: translateX(-50%);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 50px; z-index: 45; display: none;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-shadow: 0 0 15px rgba(255,255,255,0.9);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* --- 題目對話框 --- */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.bubble {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: absolute; bottom: 300px; left: -30px; width: 180px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(255, 255, 255, 0.9); border: 4px solid #f48fb1; border-radius: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 12px; font-size: 15px; color: #004080; font-weight: bold; text-align: center;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 6px 12px rgba(0,0,0,0.15); pointer-events: none;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.bubble::after { content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); border-width: 12px 12px 0; border-style: solid; border-color: #f48fb1 transparent transparent transparent; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* 操作按鈕 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#controls { position: absolute; bottom: 15px; left: 0; right: 0; display: flex; justify-content: center; gap: 25px; z-index: 100; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.move-btn { padding: 12px 35px; font-size: 20px; border: none; border-radius: 30px; background-color: #ec407a; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 5px #ad1457; transition: 0.2s; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.move-btn:active { box-shadow: 0 1px #ad1457; transform: translateY(4px); }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* 雷射光特效 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.laser { position: absolute; height: 10px; background: linear-gradient(90deg, #ff33cc, #fff); box-shadow: 0 0 15px #ff33cc, 0 0 30px #fff; transform-origin: left center; z-index: 60; border-radius: 5px; pointer-events: none; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>/* 轉場與開始畫面 */</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255, 240, 245, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#overlay h1 { color: #d81b60; font-size: 36px; margin-bottom: 10px; text-shadow: 2px 2px 5px rgba(0,0,0,0.1); }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#overlay p { font-size: 20px; color: #ad1457; font-weight: bold; margin-bottom: 25px; text-align: center; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#start-btn { padding: 18px 50px; font-size: 22px; background-color: #43a047; color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 6px #1b5e20; transition: 0.2s;}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>#start-btn:active { transform: translateY(4px); box-shadow: 0 2px #1b5e20; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;div id="game-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="status-bar"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span&gt;關卡: &lt;span id="level"&gt;1&lt;/span&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span id="sys-msg" style="color:#e65100;"&gt;左右移動尋找目標！&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span&gt;分數: &lt;span id="score"&gt;0&lt;/span&gt;/&lt;span id="target"&gt;100&lt;/span&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;span&gt;生命: &lt;span id="lives"&gt;❤️❤️❤️&lt;/span&gt;&lt;/span&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="world"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div id="boys-container"&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="girl"&gt;&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="controls"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="move-btn" onmousedown="startMoving(-1)" onmouseup="stopMoving()" onmouseleave="stopMoving()"&gt;⬅️ 往左走&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="move-btn" onmousedown="startMoving(1)" onmouseup="stopMoving()" onmouseleave="stopMoving()"&gt;往右走 ➡️&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="overlay"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1 id="overlay-title"&gt;✨ 衛教電眼美女 ✨&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;p id="overlay-desc"&gt;點擊帶有「正確健康知識」的男生電他！&lt;br&gt;電錯人會扣愛心喔！&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button id="start-btn" onclick="startGame()"&gt;開始遊戲&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p1">&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>/* --- 背景音樂設定 --- */</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let bgMusic = new Audio('bgm.m4a');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>bgMusic.loop = true;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>bgMusic.volume = 0.5;<span class="Apple-converted-space"> </span></p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>/* --- 100題大題庫 --- */</p>
-<p class="p1"><span class="Apple-converted-space">    </span>const questions = [</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "均衡飲食有助於增強免疫力。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "為了快速減肥，可以完全不吃碳水化合物。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "每天應攝取足夠水分，大約是體重乘以30毫升。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "喝市售果汁等於吃新鮮水果，可以完全取代。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "燕麥和糙米屬於優質的全穀雜糧類。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "吃雞蛋會讓膽固醇飆高，一天絕對不能吃超過一顆。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "喝含糖飲料是造成年輕人肥胖與代謝問題的主要原因之一。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "無糖綠茶雖然沒有熱量，但仍不能完全取代白開水。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "植物性食物中完全沒有蛋白質，只能靠吃肉補充。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "每天吃五份（五個拳頭大）的蔬菜水果可降低慢性病風險。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "空腹吃水果會導致胃潰瘍，一定要飯後吃。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "手搖飲的「微糖」通常還是含有相當於好幾顆方糖的糖分。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "攝取過多的鈉（鹽分）容易增加罹患高血壓的風險。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "只要吃保健食品補充維生素，三餐隨便吃也沒關係。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "細嚼慢嚥有助於大腦接收飽足感訊號，避免吃太多。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "運動後喝巧克力牛奶是補充碳水和蛋白質的好選擇。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "吃宵夜絕對會胖，跟一整天的總熱量攝取無關。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "深綠色蔬菜富含鈣質與葉酸，對健康非常有益。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "為了健康，飲食應該完全無油、無鹽。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "與親友共餐不僅能享受美食，也有助於促進心理健康。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "正確且全程使用保險套能有效降低性病傳染風險。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "體外射精是不會懷孕的，是非常安全的避孕法。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "定期進行子宮頸抹片檢查能早期發現子宮頸癌。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "只要沒有明顯症狀，發生性行為就不會傳染性病。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "雙方同意是發生任何性行為的絕對前提。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "算準安全期避孕法是100%準確，絕對不會懷孕。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "感染HPV(人類乳突病毒)目前是有疫苗可以施打預防的。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "愛滋病可以透過與感染者共用餐具傳染。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "發生性行為時，若男生沒有射精就絕對不會感染性病。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "保險套如果在皮夾裡放很久，容易因高溫摩擦而變質破損。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "事後避孕藥很方便，可以當作常規避孕方式經常使用。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "女性在生理期期間發生性行為，絕對不可能會懷孕。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "保險套戴兩層可以增加保護力，更不容易破。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "若發現感染性病，性伴侶也必須一起接受檢查與治療。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "口交或肛交也是有可能會傳染性傳染病的。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "流感疫苗每年都要重新施打，因為病毒株會變異。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "吃抗生素可以有效治療一般感冒。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "勤洗手是預防腸病毒與多種傳染病最有效的方法。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "打過水痘疫苗就代表這輩子絕對不會長帶狀皰疹。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "性行為中途才戴上保險套，依然有很高的懷孕與感染風險。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "高血壓早期通常沒有明顯症狀，被稱為「沉默的殺手」。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "年輕人不可能得糖尿病，那是老年人的專利。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "定期進行大腸癌篩檢（如糞便潛血檢查）可有效降低死亡率。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "乳癌篩檢主要依靠乳房X光攝影，能早期發現病灶。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "只要父母沒有高血壓，我就絕對不會得高血壓。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "腰圍過粗是判斷代謝症候群的重要指標之一。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "BMI（身體質量指數）是評估肥胖的唯一絕對標準。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "抽菸不僅增加肺癌風險，也會大幅增加心血管疾病機率。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "只要每天有運動，坐整天辦公桌也不會影響健康。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "維持理想體重有助於預防多種慢性病與癌症。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "大腸癌的發生與高脂肪、低纖維的飲食習慣密切相關。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "低血壓比高血壓更危險，需要立刻吃藥控制。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "糖尿病患者只要不吃甜食，血糖就會完全正常。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "骨質疏鬆症在早期通常沒有疼痛感，容易被忽略。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "過度飲酒會增加罹患肝癌與多種消化道癌症的風險。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "二手菸對身體的危害比直接抽菸還要小很多。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "血脂過高的人，血液一定會看起來很濃稠。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "有慢性病家族史的人，更應該提早進行健康檢查。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "吃口服避孕藥會大幅增加罹患所有癌症的機率。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "充足的睡眠有助於穩定血糖與血壓。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "保持良好的人際社交互動，有助於降低憂鬱和焦慮的風險。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "心理生病了只是因為「不夠堅強」，只要看開點就會好。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "適度的壓力可以提升表現，但長期慢性壓力會有害身心。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "尋求心理諮商代表這個人精神有問題。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "規律的有氧運動能夠促進大腦分泌腦內啡，改善心情。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "在社群媒體上看到別人過得很好，容易產生比較心態與焦慮。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "憂鬱症患者只要多出門走走，病態的憂鬱情緒就會立刻消失。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "學會拒絕不合理的要求，是保護心理健康的重要界線。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "傾聽並給予情感支持，是陪伴低潮朋友最好的方式之一。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "心理健康與身體健康是分開的，兩者不會互相影響。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "主動參與社團或志工活動，能增加社會歸屬感與幸福感。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "男生哭泣或表達脆弱是不成熟的表現。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "霸凌不僅是肢體暴力，言語嘲笑與網路排擠也會造成嚴重創傷。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "遇到無法解決的心理困擾時，撥打1925安心專線是個好選擇。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "每天花一點時間進行正念或深呼吸，有助於調節自律神經。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "所有的精神疾病都是因為遺傳，後天環境無法改變。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "維持固定的作息有助於穩定情緒與心理狀態。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "跟朋友抱怨發牢騷對心理健康有害，應該把負面情緒藏起來。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "接納自己的不完美，是培養心理韌性的重要步驟。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "良好的人際溝通建立在「我訊息（I-message）」的表達上。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "熬夜造成的傷害，可以靠假日睡到中午完全補回來。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "使用3C產品時，每30分鐘應休息10分鐘保護視力。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "只要在室內就不會接觸到紫外線，所以不需要防曬。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "每天刷牙兩次並使用牙線，是預防牙周病的基本功。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "感冒流汗吹風會加重病情，所以發燒時應該蓋厚棉被逼汗。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "扭傷時的第一處理原則是立刻熱敷和推拿。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "即使是陰天，戶外依然會有紫外線，需要注意防曬。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "久坐不動被認為是新型態的健康殺手，危害等同於吸菸。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "打噴嚏時用雙手手掌捂住口鼻是正確的衛生習慣。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "定期清洗床單和枕頭套，有助於減少臉部痘痘與過敏。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "吃維他命B群可以提供熱量，讓人精神百倍。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "洗澡水越熱越能消除疲勞，對皮膚也越好。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "近視只要戴眼鏡看得清楚就好，度數深淺不會影響眼球健康。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "睡前滑手機的藍光會抑制褪黑激素分泌，影響睡眠品質。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "剛吃飽馬上劇烈運動，容易造成消化不良與胃下垂風險。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "流鼻血時應該要把頭往後仰，才不會讓血流出來。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "正確的搬重物姿勢是彎曲膝蓋蹲下，用腿部力量站起。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "把食物放進冰箱就絕對不會壞，可以無限期保存。", isTrue: false },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "運動前進行動態暖身，可以降低肌肉拉傷的風險。", isTrue: true },</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{ text: "微波爐加熱食物不會破壞所有營養素，有時比水煮保留更多維生素。", isTrue: true }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>];</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let currentLevel = 1;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let score = 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let lives = 3;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let targetScores = [50, 100, 150];<span class="Apple-converted-space"> </span></p>
-<p class="p2"><span class="Apple-converted-space">    </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>let cameraX = 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let worldWidth = 3000;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let viewWidth = 900;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let moveDirection = 0;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let animationFrame;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let spawnTimer;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>let boyBag = [];<span class="Apple-converted-space"> </span></p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function startGame() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("overlay").style.display = "none";</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>bgMusic.play().catch(error =&gt; console.log("音樂播放失敗", error));</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>currentLevel = 1;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>score = 0;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>lives = 3;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>cameraX = 0;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>boyBag = [];<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("boys-container").innerHTML = "";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("start-btn").onclick = startGame;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>updateUI();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stopMoving();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>gameLoop();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>spawnTimer = setInterval(spawnBoy, 2500);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function updateUI() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("level").innerText = currentLevel;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("score").innerText = score;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("target").innerText = targetScores[currentLevel - 1];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("lives").innerText = "❤️".repeat(Math.max(0, lives));</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function showMsg(msg, color) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let sysMsg = document.getElementById("sys-msg");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>sysMsg.innerText = msg;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>sysMsg.style.color = color;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>setTimeout(() =&gt; { sysMsg.innerText = "左右移動尋找目標！"; sysMsg.style.color = "#e65100"; }, 2000);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function startMoving(dir) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>moveDirection = dir;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("girl").classList.add('walking');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function stopMoving() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>moveDirection = 0;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("girl").classList.remove('walking');</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function gameLoop() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (moveDirection !== 0) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>cameraX += moveDirection * 10;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (cameraX &lt; 0) cameraX = 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (cameraX &gt; worldWidth - viewWidth) cameraX = worldWidth - viewWidth;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById("world").style.transform = `translateX(${-cameraX}px)`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>animationFrame = requestAnimationFrame(gameLoop);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function spawnBoy() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (document.querySelectorAll('.boy').length &gt; 5) return;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let boyX = Math.random() * (worldWidth - 200) + 100;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let q = questions[Math.floor(Math.random() * questions.length)];</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (boyBag.length === 0) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>boyBag = [1, 2, 3, 4, 5, 6, 7];</p>
-<p class="p1"><span class="Apple-converted-space">            </span>boyBag.sort(() =&gt; Math.random() - 0.5);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let boyId = boyBag.pop();<span class="Apple-converted-space"> </span></p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let boyDiv = document.createElement("div");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>boyDiv.className = "boy";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>boyDiv.style.left = boyX + "px";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>boyDiv.style.backgroundImage = `url('boy${boyId}.png')`;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>boyDiv.innerHTML = `</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="status-face"&gt;😍&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="bubble"&gt;${q.text}&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>boyDiv.onclick = function() { shootLaser(boyDiv, q.isTrue); };</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("boys-container").appendChild(boyDiv);</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>setTimeout(() =&gt; { if(boyDiv.parentElement) boyDiv.remove(); }, 12000);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function shootLaser(boyElement, isTrue) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let container = document.getElementById("game-container");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let girl = document.getElementById("girl");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let containerRect = container.getBoundingClientRect();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let girlRect = girl.getBoundingClientRect();</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let startX = girlRect.left - containerRect.left + girlRect.width / 2;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let startY = girlRect.top - containerRect.top + (girlRect.height * 0.2);<span class="Apple-converted-space"> </span></p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let boyRect = boyElement.getBoundingClientRect();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let endX = boyRect.left - containerRect.left + boyRect.width / 2;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let endY = boyRect.top - containerRect.top + (boyRect.height * 0.2);<span class="Apple-converted-space"> </span></p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let dx = endX - startX; let dy = endY - startY;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let length = Math.sqrt(dx*dx + dy*dy);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let angle = Math.atan2(dy, dx) * 180 / Math.PI;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let laser = document.createElement("div");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>laser.className = "laser";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>laser.style.width = length + "px"; laser.style.left = startX + "px"; laser.style.top = startY + "px";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>laser.style.transform = `rotate(${angle}deg)`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>container.appendChild(laser);</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>boyElement.querySelector('.bubble').style.display = 'none';</p>
-<p class="p1"><span class="Apple-converted-space">        </span>let statusFace = boyElement.querySelector('.status-face');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>statusFace.style.display = 'block';</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (isTrue) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>statusFace.innerText = "😍";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>score += 10;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>showMsg("⚡ 電眼成功！獲得校園大美女分數", "#d81b60");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>statusFace.innerText = "💀";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>lives -= 1;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>showMsg("❌ 糟糕！電到迷思，扣生命值", "#424242");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>updateUI();</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>setTimeout(() =&gt; {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>laser.remove();</p>
-<p class="p1"><span class="Apple-converted-space">            </span>boyElement.style.opacity = "0";<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>setTimeout(() =&gt; boyElement.remove(), 400);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>checkWinLose();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}, 1000);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function checkWinLose() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>if (lives &lt;= 0) {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>endGame("💔 失去所有愛心，遊戲結束！");<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>} else if (score &gt;= targetScores[currentLevel - 1]) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (currentLevel === 3) {<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">                </span>endGame("🎉 恭喜通關！👑&lt;br&gt;你贏得了【校園大美女】頭銜！");<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>levelClearTransition();<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function levelClearTransition() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>cancelAnimationFrame(animationFrame);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>clearInterval(spawnTimer);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>stopMoving();<span class="Apple-converted-space"> </span></p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let overlay = document.getElementById("overlay");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>overlay.style.display = "flex";</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("overlay-title").innerText = `✨ 第 ${currentLevel} 關 通關！ ✨`;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("overlay-desc").innerHTML = `太棒了！準備好迎接下一關了嗎？&lt;br&gt;下一關過關目標：${targetScores[currentLevel]} 分`;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let btn = document.getElementById("start-btn");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>btn.innerText = "進入下一關 ➡️";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>btn.onclick = nextLevel;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function nextLevel() {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("overlay").style.display = "none";</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>currentLevel++;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>score = 0;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>cameraX = 0;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>boyBag = [];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("boys-container").innerHTML = "";<span class="Apple-converted-space"> </span></p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>updateUI();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>gameLoop();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>spawnTimer = setInterval(spawnBoy, 2500);</p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>function endGame(msg) {</p>
-<p class="p1"><span class="Apple-converted-space">        </span>cancelAnimationFrame(animationFrame);<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>clearInterval(spawnTimer);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>stopMoving();</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>bgMusic.pause();</p>
-<p class="p1"><span class="Apple-converted-space">        </span>bgMusic.currentTime = 0;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let overlay = document.getElementById("overlay");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>overlay.style.display = "flex";</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById("overlay-desc").innerHTML = msg;</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>let btn = document.getElementById("start-btn");</p>
-<p class="p1"><span class="Apple-converted-space">        </span>btn.innerText = "重新挑戰";</p>
-<p class="p1"><span class="Apple-converted-space">        </span>btn.onclick = startGame;<span class="Apple-converted-space"> </span></p>
-<p class="p1"><span class="Apple-converted-space">    </span>}</p>
-<p class="p1">&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+
+<div id="game-container">
+    <div id="status-bar">
+        <span>關卡: <span id="level">1</span></span>
+        <span id="sys-msg" style="color:#e65100;">左右移動尋找目標！</span>
+        <span>分數: <span id="score">0</span>/<span id="target">100</span></span>
+        <span>生命: <span id="lives">❤️❤️❤️</span></span>
+    </div>
+
+    <div id="world">
+        <div id="boys-container"></div>
+    </div>
+
+    <div id="girl"></div>
+
+    <div id="controls">
+        <button class="move-btn" onmousedown="startMoving(-1)" onmouseup="stopMoving()" onmouseleave="stopMoving()">⬅️ 往左走</button>
+        <button class="move-btn" onmousedown="startMoving(1)" onmouseup="stopMoving()" onmouseleave="stopMoving()">往右走 ➡️</button>
+    </div>
+
+    <div id="overlay">
+        <h1 id="overlay-title">✨ 衛教電眼美女 ✨</h1>
+        <p id="overlay-desc">點擊帶有「正確健康知識」的男生電他！<br>電錯人會扣愛心喔！</p>
+        <button id="start-btn" onclick="startGame()">開始遊戲</button>
+    </div>
+</div>
+
+<script>
+    /* --- 背景音樂設定 --- */
+    let bgMusic = new Audio('bgm.m4a');
+    bgMusic.loop = true; 
+    bgMusic.volume = 0.5; 
+
+    /* --- 100題大題庫 --- */
+    const questions = [
+        { text: "均衡飲食有助於增強免疫力。", isTrue: true },
+        { text: "為了快速減肥，可以完全不吃碳水化合物。", isTrue: false },
+        { text: "每天應攝取足夠水分，大約是體重乘以30毫升。", isTrue: true },
+        { text: "喝市售果汁等於吃新鮮水果，可以完全取代。", isTrue: false },
+        { text: "燕麥和糙米屬於優質的全穀雜糧類。", isTrue: true },
+        { text: "吃雞蛋會讓膽固醇飆高，一天絕對不能吃超過一顆。", isTrue: false },
+        { text: "喝含糖飲料是造成年輕人肥胖與代謝問題的主要原因之一。", isTrue: true },
+        { text: "無糖綠茶雖然沒有熱量，但仍不能完全取代白開水。", isTrue: true },
+        { text: "植物性食物中完全沒有蛋白質，只能靠吃肉補充。", isTrue: false },
+        { text: "每天吃五份（五個拳頭大）的蔬菜水果可降低慢性病風險。", isTrue: true },
+        { text: "空腹吃水果會導致胃潰瘍，一定要飯後吃。", isTrue: false },
+        { text: "手搖飲的「微糖」通常還是含有相當於好幾顆方糖的糖分。", isTrue: true },
+        { text: "攝取過多的鈉（鹽分）容易增加罹患高血壓的風險。", isTrue: true },
+        { text: "只要吃保健食品補充維生素，三餐隨便吃也沒關係。", isTrue: false },
+        { text: "細嚼慢嚥有助於大腦接收飽足感訊號，避免吃太多。", isTrue: true },
+        { text: "運動後喝巧克力牛奶是補充碳水和蛋白質的好選擇。", isTrue: true },
+        { text: "吃宵夜絕對會胖，跟一整天的總熱量攝取無關。", isTrue: false },
+        { text: "深綠色蔬菜富含鈣質與葉酸，對健康非常有益。", isTrue: true },
+        { text: "為了健康，飲食應該完全無油、無鹽。", isTrue: false },
+        { text: "與親友共餐不僅能享受美食，也有助於促進心理健康。", isTrue: true },
+        { text: "正確且全程使用保險套能有效降低性病傳染風險。", isTrue: true },
+        { text: "體外射精是不會懷孕的，是非常安全的避孕法。", isTrue: false },
+        { text: "定期進行子宮頸抹片檢查能早期發現子宮頸癌。", isTrue: true },
+        { text: "只要沒有明顯症狀，發生性行為就不會傳染性病。", isTrue: false },
+        { text: "雙方同意是發生任何性行為的絕對前提。", isTrue: true },
+        { text: "算準安全期避孕法是100%準確，絕對不會懷孕。", isTrue: false },
+        { text: "感染HPV(人類乳突病毒)目前是有疫苗可以施打預防的。", isTrue: true },
+        { text: "愛滋病可以透過與感染者共用餐具傳染。", isTrue: false },
+        { text: "發生性行為時，若男生沒有射精就絕對不會感染性病。", isTrue: false },
+        { text: "保險套如果在皮夾裡放很久，容易因高溫摩擦而變質破損。", isTrue: true },
+        { text: "事後避孕藥很方便，可以當作常規避孕方式經常使用。", isTrue: false },
+        { text: "女性在生理期期間發生性行為，絕對不可能會懷孕。", isTrue: false },
+        { text: "保險套戴兩層可以增加保護力，更不容易破。", isTrue: false },
+        { text: "若發現感染性病，性伴侶也必須一起接受檢查與治療。", isTrue: true },
+        { text: "口交或肛交也是有可能會傳染性傳染病的。", isTrue: true },
+        { text: "流感疫苗每年都要重新施打，因為病毒株會變異。", isTrue: true },
+        { text: "吃抗生素可以有效治療一般感冒。", isTrue: false },
+        { text: "勤洗手是預防腸病毒與多種傳染病最有效的方法。", isTrue: true },
+        { text: "打過水痘疫苗就代表這輩子絕對不會長帶狀皰疹。", isTrue: false },
+        { text: "性行為中途才戴上保險套，依然有很高的懷孕與感染風險。", isTrue: true },
+        { text: "高血壓早期通常沒有明顯症狀，被稱為「沉默的殺手」。", isTrue: true },
+        { text: "年輕人不可能得糖尿病，那是老年人的專利。", isTrue: false },
+        { text: "定期進行大腸癌篩檢（如糞便潛血檢查）可有效降低死亡率。", isTrue: true },
+        { text: "乳癌篩檢主要依靠乳房X光攝影，能早期發現病灶。", isTrue: true },
+        { text: "只要父母沒有高血壓，我就絕對不會得高血壓。", isTrue: false },
+        { text: "腰圍過粗是判斷代謝症候群的重要指標之一。", isTrue: true },
+        { text: "BMI（身體質量指數）是評估肥胖的唯一絕對標準。", isTrue: false },
+        { text: "抽菸不僅增加肺癌風險，也會大幅增加心血管疾病機率。", isTrue: true },
+        { text: "只要每天有運動，坐整天辦公桌也不會影響健康。", isTrue: false },
+        { text: "維持理想體重有助於預防多種慢性病與癌症。", isTrue: true },
+        { text: "大腸癌的發生與高脂肪、低纖維的飲食習慣密切相關。", isTrue: true },
+        { text: "低血壓比高血壓更危險，需要立刻吃藥控制。", isTrue: false },
+        { text: "糖尿病患者只要不吃甜食，血糖就會完全正常。", isTrue: false },
+        { text: "骨質疏鬆症在早期通常沒有疼痛感，容易被忽略。", isTrue: true },
+        { text: "過度飲酒會增加罹患肝癌與多種消化道癌症的風險。", isTrue: true },
+        { text: "二手菸對身體的危害比直接抽菸還要小很多。", isTrue: false },
+        { text: "血脂過高的人，血液一定會看起來很濃稠。", isTrue: false },
+        { text: "有慢性病家族史的人，更應該提早進行健康檢查。", isTrue: true },
+        { text: "吃口服避孕藥會大幅增加罹患所有癌症的機率。", isTrue: false },
+        { text: "充足的睡眠有助於穩定血糖與血壓。", isTrue: true },
+        { text: "保持良好的人際社交互動，有助於降低憂鬱和焦慮的風險。", isTrue: true },
+        { text: "心理生病了只是因為「不夠堅強」，只要看開點就會好。", isTrue: false },
+        { text: "適度的壓力可以提升表現，但長期慢性壓力會有害身心。", isTrue: true },
+        { text: "尋求心理諮商代表這個人精神有問題。", isTrue: false },
+        { text: "規律的有氧運動能夠促進大腦分泌腦內啡，改善心情。", isTrue: true },
+        { text: "在社群媒體上看到別人過得很好，容易產生比較心態與焦慮。", isTrue: true },
+        { text: "憂鬱症患者只要多出門走走，病態的憂鬱情緒就會立刻消失。", isTrue: false },
+        { text: "學會拒絕不合理的要求，是保護心理健康的重要界線。", isTrue: true },
+        { text: "傾聽並給予情感支持，是陪伴低潮朋友最好的方式之一。", isTrue: true },
+        { text: "心理健康與身體健康是分開的，兩者不會互相影響。", isTrue: false },
+        { text: "主動參與社團或志工活動，能增加社會歸屬感與幸福感。", isTrue: true },
+        { text: "男生哭泣或表達脆弱是不成熟的表現。", isTrue: false },
+        { text: "霸凌不僅是肢體暴力，言語嘲笑與網路排擠也會造成嚴重創傷。", isTrue: true },
+        { text: "遇到無法解決的心理困擾時，撥打1925安心專線是個好選擇。", isTrue: true },
+        { text: "每天花一點時間進行正念或深呼吸，有助於調節自律神經。", isTrue: true },
+        { text: "所有的精神疾病都是因為遺傳，後天環境無法改變。", isTrue: false },
+        { text: "維持固定的作息有助於穩定情緒與心理狀態。", isTrue: true },
+        { text: "跟朋友抱怨發牢騷對心理健康有害，應該把負面情緒藏起來。", isTrue: false },
+        { text: "接納自己的不完美，是培養心理韌性的重要步驟。", isTrue: true },
+        { text: "良好的人際溝通建立在「我訊息（I-message）」的表達上。", isTrue: true },
+        { text: "熬夜造成的傷害，可以靠假日睡到中午完全補回來。", isTrue: false },
+        { text: "使用3C產品時，每30分鐘應休息10分鐘保護視力。", isTrue: true },
+        { text: "只要在室內就不會接觸到紫外線，所以不需要防曬。", isTrue: false },
+        { text: "每天刷牙兩次並使用牙線，是預防牙周病的基本功。", isTrue: true },
+        { text: "感冒流汗吹風會加重病情，所以發燒時應該蓋厚棉被逼汗。", isTrue: false },
+        { text: "扭傷時的第一處理原則是立刻熱敷和推拿。", isTrue: false },
+        { text: "即使是陰天，戶外依然會有紫外線，需要注意防曬。", isTrue: true },
+        { text: "久坐不動被認為是新型態的健康殺手，危害等同於吸菸。", isTrue: true },
+        { text: "打噴嚏時用雙手手掌捂住口鼻是正確的衛生習慣。", isTrue: false },
+        { text: "定期清洗床單和枕頭套，有助於減少臉部痘痘與過敏。", isTrue: true },
+        { text: "吃維他命B群可以提供熱量，讓人精神百倍。", isTrue: false },
+        { text: "洗澡水越熱越能消除疲勞，對皮膚也越好。", isTrue: false },
+        { text: "近視只要戴眼鏡看得清楚就好，度數深淺不會影響眼球健康。", isTrue: false },
+        { text: "睡前滑手機的藍光會抑制褪黑激素分泌，影響睡眠品質。", isTrue: true },
+        { text: "剛吃飽馬上劇烈運動，容易造成消化不良與胃下垂風險。", isTrue: true },
+        { text: "流鼻血時應該要把頭往後仰，才不會讓血流出來。", isTrue: false },
+        { text: "正確的搬重物姿勢是彎曲膝蓋蹲下，用腿部力量站起。", isTrue: true },
+        { text: "把食物放進冰箱就絕對不會壞，可以無限期保存。", isTrue: false },
+        { text: "運動前進行動態暖身，可以降低肌肉拉傷的風險。", isTrue: true },
+        { text: "微波爐加熱食物不會破壞所有營養素，有時比水煮保留更多維生素。", isTrue: true }
+    ];
+
+    let currentLevel = 1;
+    let score = 0;
+    let lives = 3;
+    let targetScores = [50, 100, 150]; 
+    
+    let cameraX = 0;
+    let worldWidth = 3000;
+    let viewWidth = 900;
+    let moveDirection = 0;
+    let animationFrame;
+    let spawnTimer;
+    let boyBag = []; 
+
+    function startGame() {
+        document.getElementById("overlay").style.display = "none";
+        
+        bgMusic.play().catch(error => console.log("音樂播放失敗", error));
+        
+        currentLevel = 1;
+        score = 0;
+        lives = 3;
+        cameraX = 0;
+        boyBag = []; 
+        document.getElementById("boys-container").innerHTML = "";
+        document.getElementById("start-btn").onclick = startGame;
+
+        updateUI();
+        stopMoving(); 
+        gameLoop();
+        spawnTimer = setInterval(spawnBoy, 2500);
+    }
+
+    function updateUI() {
+        document.getElementById("level").innerText = currentLevel;
+        document.getElementById("score").innerText = score;
+        document.getElementById("target").innerText = targetScores[currentLevel - 1];
+        document.getElementById("lives").innerText = "❤️".repeat(Math.max(0, lives));
+    }
+
+    function showMsg(msg, color) {
+        let sysMsg = document.getElementById("sys-msg");
+        sysMsg.innerText = msg;
+        sysMsg.style.color = color;
+        setTimeout(() => { sysMsg.innerText = "左右移動尋找目標！"; sysMsg.style.color = "#e65100"; }, 2000);
+    }
+
+    function startMoving(dir) {
+        moveDirection = dir;
+        document.getElementById("girl").classList.add('walking');
+    }
+
+    function stopMoving() {
+        moveDirection = 0;
+        document.getElementById("girl").classList.remove('walking');
+    }
+
+    function gameLoop() {
+        if (moveDirection !== 0) {
+            cameraX += moveDirection * 10;
+            if (cameraX < 0) cameraX = 0;
+            if (cameraX > worldWidth - viewWidth) cameraX = worldWidth - viewWidth;
+            document.getElementById("world").style.transform = `translateX(${-cameraX}px)`;
+        }
+        animationFrame = requestAnimationFrame(gameLoop);
+    }
+
+    function spawnBoy() {
+        if (document.querySelectorAll('.boy').length > 5) return;
+        
+        let boyX = Math.random() * (worldWidth - 200) + 100;
+        let q = questions[Math.floor(Math.random() * questions.length)];
+        
+        if (boyBag.length === 0) {
+            boyBag = [1, 2, 3, 4, 5, 6, 7];
+            boyBag.sort(() => Math.random() - 0.5); 
+        }
+        let boyId = boyBag.pop(); 
+        
+        let boyDiv = document.createElement("div");
+        boyDiv.className = "boy";
+        boyDiv.style.left = boyX + "px";
+        boyDiv.style.backgroundImage = `url('boy${boyId}.png')`;
+        
+        boyDiv.innerHTML = `
+            <div class="status-face">😍</div>
+            <div class="bubble">${q.text}</div>
+        `;
+        
+        boyDiv.onclick = function() { shootLaser(boyDiv, q.isTrue); };
+        document.getElementById("boys-container").appendChild(boyDiv);
+        
+        setTimeout(() => { if(boyDiv.parentElement) boyDiv.remove(); }, 12000);
+    }
+
+    function shootLaser(boyElement, isTrue) {
+        let container = document.getElementById("game-container");
+        let girl = document.getElementById("girl");
+        let containerRect = container.getBoundingClientRect();
+        let girlRect = girl.getBoundingClientRect();
+        
+        let startX = girlRect.left - containerRect.left + girlRect.width / 2;
+        let startY = girlRect.top - containerRect.top + (girlRect.height * 0.2); 
+
+        let boyRect = boyElement.getBoundingClientRect();
+        let endX = boyRect.left - containerRect.left + boyRect.width / 2;
+        let endY = boyRect.top - containerRect.top + (boyRect.height * 0.2); 
+
+        let dx = endX - startX; let dy = endY - startY;
+        let length = Math.sqrt(dx*dx + dy*dy);
+        let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+        let laser = document.createElement("div");
+        laser.className = "laser";
+        laser.style.width = length + "px"; laser.style.left = startX + "px"; laser.style.top = startY + "px";
+        laser.style.transform = `rotate(${angle}deg)`;
+        container.appendChild(laser);
+
+        boyElement.querySelector('.bubble').style.display = 'none';
+        let statusFace = boyElement.querySelector('.status-face');
+        statusFace.style.display = 'block';
+
+        if (isTrue) {
+            statusFace.innerText = "😍";
+            score += 10;
+            showMsg("⚡ 電眼成功！獲得校園大美女分數", "#d81b60");
+        } else {
+            statusFace.innerText = "💀";
+            lives -= 1;
+            showMsg("❌ 糟糕！電到迷思，扣生命值", "#424242");
+        }
+
+        updateUI();
+
+        setTimeout(() => {
+            laser.remove();
+            boyElement.style.opacity = "0"; 
+            setTimeout(() => boyElement.remove(), 400);
+            checkWinLose();
+        }, 1000);
+    }
+
+    function checkWinLose() {
+        if (lives <= 0) { 
+            endGame("💔 失去所有愛心，遊戲結束！"); 
+        } else if (score >= targetScores[currentLevel - 1]) {
+            if (currentLevel === 3) { 
+                endGame("🎉 恭喜通關！👑<br>你贏得了【校園大美女】頭銜！"); 
+            } else {
+                levelClearTransition(); 
+            }
+        }
+    }
+
+    function levelClearTransition() {
+        cancelAnimationFrame(animationFrame); 
+        clearInterval(spawnTimer); 
+        stopMoving(); 
+        
+        let overlay = document.getElementById("overlay");
+        overlay.style.display = "flex";
+        
+        document.getElementById("overlay-title").innerText = `✨ 第 ${currentLevel} 關 通關！ ✨`;
+        document.getElementById("overlay-desc").innerHTML = `太棒了！準備好迎接下一關了嗎？<br>下一關過關目標：${targetScores[currentLevel]} 分`;
+        
+        let btn = document.getElementById("start-btn");
+        btn.innerText = "進入下一關 ➡️";
+        btn.onclick = nextLevel; 
+    }
+
+    function nextLevel() {
+        document.getElementById("overlay").style.display = "none";
+        
+        currentLevel++; 
+        score = 0; 
+        cameraX = 0;
+        boyBag = [];
+        document.getElementById("boys-container").innerHTML = ""; 
+        
+        document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";
+        
+        updateUI();
+        gameLoop();
+        spawnTimer = setInterval(spawnBoy, 2500);
+    }
+
+    function endGame(msg) {
+        cancelAnimationFrame(animationFrame); 
+        clearInterval(spawnTimer);
+        stopMoving();
+        
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+
+        let overlay = document.getElementById("overlay");
+        overlay.style.display = "flex";
+        
+        document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";
+        document.getElementById("overlay-desc").innerHTML = msg;
+        
+        let btn = document.getElementById("start-btn");
+        btn.innerText = "重新挑戰";
+        btn.onclick = startGame; 
+    }
+</script>
+
 </body>
 </html>
