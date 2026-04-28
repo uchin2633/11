@@ -87,11 +87,18 @@
         
         /* 操作按鈕 (調整給手機好按的大小) */
         #controls { position: absolute; bottom: 15px; left: 0; right: 0; display: flex; justify-content: center; gap: 20px; z-index: 100; }
+        /* 操作按鈕 (調整給手機好按的大小，並加入防選取) */
         .move-btn { 
             padding: 15px 30px; font-size: 18px; border: none; border-radius: 30px; 
             background-color: #ec407a; color: white; font-weight: bold; cursor: pointer; 
             box-shadow: 0 5px #ad1457; transition: 0.2s;
             touch-action: manipulation; /* 優化手機點擊手感 */
+            
+            /* --- 新增：絕對禁止手機長按選取與跳出選單 --- */
+            -webkit-user-select: none; /* 專門寫給 iOS Safari */
+            user-select: none; /* 通用標準防選取 */
+            -webkit-touch-callout: none; /* 禁止長按跳出選單 (例如拷貝/分享) */
+            outline: none; /* 取消點擊時的藍色外框 */
         }
         .move-btn:active { box-shadow: 0 1px #ad1457; transform: translateY(4px); }
         
