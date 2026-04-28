@@ -3,32 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>衛教電眼美女 - 手機電腦雙棲版</title>
+    <title>衛教電眼美女 - 手機完美適應版</title>
     <style>
         /* --- 全域設定 --- */
         body {
             font-family: 'Microsoft JhengHei', sans-serif;
             background-color: #fce4ec;
             display: flex; justify-content: center; align-items: center;
-            height: 100vh; margin: 0; overflow: hidden; user-select: none;
-            touch-action: none; /* 防止手機瀏覽器預設的滑動手勢干擾遊戲 */
+            /* 魔法指令：使用 dvh 解決 Safari 底部工具列遮擋問題 */
+            height: 100vh; height: 100dvh; 
+            margin: 0; overflow: hidden; user-select: none;
+            touch-action: none;
         }
         
-        /* 讓遊戲容器自動適應螢幕大小 */
         #game-container {
-            width: 100vw; height: 100vh; 
-            max-width: 900px; max-height: 600px; /* 在大螢幕上維持最大尺寸 */
+            width: 100vw; 
+            height: 100vh; height: 100dvh; 
+            max-width: 900px; max-height: 600px;
             background-color: #fdf2f8;
             box-shadow: 0 15px 30px rgba(0,0,0,0.3);
             position: relative; overflow: hidden; 
-            border: 5px solid #f8bbd0;
+            border: 8px solid #f8bbd0;
             box-sizing: border-box;
         }
         
         /* --- 狀態欄 --- */
         #status-bar {
             position: absolute; top: 0; left: 0; right: 0;
-            display: flex; justify-content: space-between;
+            display: flex; justify-content: space-between; align-items: center;
             background: rgba(253, 242, 248, 0.95); padding: 10px 15px;
             font-weight: bold; color: #ad1457; z-index: 100; font-size: 16px;
             border-bottom: 3px solid #f48fb1;
@@ -48,13 +50,13 @@
         /* --- 圖片版女主角設定 --- */
         #girl {
             position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-            width: 120px; height: 230px; /* 稍微微調適應各種螢幕 */
+            width: 120px; height: 230px; 
             background-image: url('girl.png');
             background-size: contain;
             background-position: center bottom;
             background-repeat: no-repeat;
             z-index: 50; 
-            pointer-events: none; /* 防擋點擊 */
+            pointer-events: none; 
         }
         #girl.walking { animation: walkBounce 0.3s infinite alternate; }
         @keyframes walkBounce { 0% { bottom: 80px; } 100% { bottom: 95px; } }
@@ -85,20 +87,14 @@
         }
         .bubble::after { content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); border-width: 12px 12px 0; border-style: solid; border-color: #f48fb1 transparent transparent transparent; }
         
-        /* 操作按鈕 (調整給手機好按的大小) */
-        #controls { position: absolute; bottom: 15px; left: 0; right: 0; display: flex; justify-content: center; gap: 20px; z-index: 100; }
-        /* 操作按鈕 (調整給手機好按的大小，並加入防選取) */
+        /* 操作按鈕 */
+        #controls { position: absolute; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 20px; z-index: 100; }
         .move-btn { 
             padding: 15px 30px; font-size: 18px; border: none; border-radius: 30px; 
             background-color: #ec407a; color: white; font-weight: bold; cursor: pointer; 
             box-shadow: 0 5px #ad1457; transition: 0.2s;
-            touch-action: manipulation; /* 優化手機點擊手感 */
-            
-            /* --- 新增：絕對禁止手機長按選取與跳出選單 --- */
-            -webkit-user-select: none; /* 專門寫給 iOS Safari */
-            user-select: none; /* 通用標準防選取 */
-            -webkit-touch-callout: none; /* 禁止長按跳出選單 (例如拷貝/分享) */
-            outline: none; /* 取消點擊時的藍色外框 */
+            touch-action: manipulation; 
+            -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; outline: none; 
         }
         .move-btn:active { box-shadow: 0 1px #ad1457; transform: translateY(4px); }
         
@@ -111,6 +107,39 @@
         #overlay p { font-size: 18px; color: #ad1457; font-weight: bold; margin-bottom: 25px; text-align: center; padding: 0 20px; }
         #start-btn { padding: 15px 40px; font-size: 20px; background-color: #43a047; color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 6px #1b5e20; transition: 0.2s;}
         #start-btn:active { transform: translateY(4px); box-shadow: 0 2px #1b5e20; }
+
+        /* ========================================= */
+        /* 📱 手機專屬響應式設計 (RWD) 魔法區塊        */
+        /* 當螢幕寬度小於 600px 時，自動套用以下設定   */
+        /* ========================================= */
+        @media (max-width: 600px) {
+            #game-container {
+                border-width: 0px; /* 手機畫面小，把粗邊框拿掉省空間 */
+                border-radius: 0px;
+            }
+            #status-bar {
+                font-size: 13px; /* 字體縮小 */
+                padding: 5px 10px; 
+            }
+            #sys-msg {
+                display: none; /* 手機版隱藏中間的提示字，把空間留給分數和生命 */
+            }
+            #controls {
+                bottom: 40px; /* 把按鈕往上提，徹底避開 Safari 底部導覽列 */
+                gap: 15px;
+            }
+            .move-btn {
+                padding: 12px 25px; 
+                font-size: 16px;
+            }
+            /* 人物在手機版稍微縮小一點點，比例更好看 */
+            #girl { width: 100px; height: 190px; bottom: 70px; }
+            .boy { width: 100px; height: 210px; bottom: 70px; }
+            .bubble {
+                width: 140px; font-size: 12px; bottom: 250px; left: -20px;
+            }
+            @keyframes walkBounce { 0% { bottom: 70px; } 100% { bottom: 80px; } }
+        }
     </style>
 </head>
 <body>
@@ -150,12 +179,10 @@
 </div>
 
 <script>
-    /* --- 背景音樂設定 --- */
     let bgMusic = new Audio('bgm.m4a');
     bgMusic.loop = true; 
     bgMusic.volume = 0.5; 
 
-    /* --- 100題大題庫 --- */
     const questions = [
         { text: "均衡飲食有助於增強免疫力。", isTrue: true },
         { text: "為了快速減肥，可以完全不吃碳水化合物。", isTrue: false },
@@ -302,10 +329,12 @@
         let sysMsg = document.getElementById("sys-msg");
         sysMsg.innerText = msg;
         sysMsg.style.color = color;
-        setTimeout(() => { sysMsg.innerText = "左右移動尋找目標！"; sysMsg.style.color = "#e65100"; }, 2000);
+        // 如果是在大螢幕才會短暫顯示文字提示
+        if(window.innerWidth > 600) {
+            setTimeout(() => { sysMsg.innerText = "左右移動尋找目標！"; sysMsg.style.color = "#e65100"; }, 2000);
+        }
     }
 
-    // 防止在手機上長按按鈕觸發選取文字
     function startMoving(dir) {
         moveDirection = dir;
         document.getElementById("girl").classList.add('walking');
@@ -384,7 +413,7 @@
         if (isTrue) {
             statusFace.innerText = "😍";
             score += 10;
-            showMsg("⚡ 電眼成功！獲得校園大美女分數", "#d81b60");
+            showMsg("⚡ 電眼成功！獲得大美女分數", "#d81b60");
         } else {
             statusFace.innerText = "💀";
             lives -= 1;
