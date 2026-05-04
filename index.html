@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>衛教電眼美女 - 手機完美適應版</title>
+    <title>衛教電眼美女 - 完整規則版</title>
     <style>
         /* --- 全域設定 --- */
         body {
             font-family: 'Microsoft JhengHei', sans-serif;
             background-color: #fce4ec;
             display: flex; justify-content: center; align-items: center;
-            /* 魔法指令：使用 dvh 解決 Safari 底部工具列遮擋問題 */
             height: 100vh; height: 100dvh; 
             margin: 0; overflow: hidden; user-select: none;
             touch-action: none;
@@ -103,42 +102,40 @@
         
         /* 轉場與開始畫面 */
         #overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255, 240, 245, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; }
-        #overlay h1 { color: #d81b60; font-size: 32px; margin-bottom: 10px; text-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
-        #overlay p { font-size: 18px; color: #ad1457; font-weight: bold; margin-bottom: 25px; text-align: center; padding: 0 20px; }
+        #overlay h1 { color: #d81b60; font-size: 32px; margin-bottom: 15px; text-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        
+        /* --- 遊戲規則框樣式 --- */
+        #rules-box {
+            background: white; border: 3px dashed #f48fb1; border-radius: 15px;
+            padding: 15px 25px; margin-bottom: 25px; width: 85%; max-width: 350px;
+            color: #ad1457; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: left;
+        }
+        #rules-box h3 { margin: 0 0 10px 0; text-align: center; color: #d81b60; font-size: 20px; }
+        #rules-box ul { margin: 0; padding-left: 20px; line-height: 1.8; font-size: 16px; font-weight: bold;}
+        #rules-box li { margin-bottom: 5px; }
+
+        #overlay-desc { font-size: 18px; color: #ad1457; font-weight: bold; margin-bottom: 25px; text-align: center; padding: 0 20px; display: none; }
         #start-btn { padding: 15px 40px; font-size: 20px; background-color: #43a047; color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 6px #1b5e20; transition: 0.2s;}
         #start-btn:active { transform: translateY(4px); box-shadow: 0 2px #1b5e20; }
 
         /* ========================================= */
-        /* 📱 手機專屬響應式設計 (RWD) 魔法區塊        */
-        /* 當螢幕寬度小於 600px 時，自動套用以下設定   */
+        /* 📱 手機專屬響應式設計 (RWD)               */
         /* ========================================= */
         @media (max-width: 600px) {
-            #game-container {
-                border-width: 0px; /* 手機畫面小，把粗邊框拿掉省空間 */
-                border-radius: 0px;
-            }
-            #status-bar {
-                font-size: 13px; /* 字體縮小 */
-                padding: 5px 10px; 
-            }
-            #sys-msg {
-                display: none; /* 手機版隱藏中間的提示字，把空間留給分數和生命 */
-            }
-            #controls {
-                bottom: 40px; /* 把按鈕往上提，徹底避開 Safari 底部導覽列 */
-                gap: 15px;
-            }
-            .move-btn {
-                padding: 12px 25px; 
-                font-size: 16px;
-            }
-            /* 人物在手機版稍微縮小一點點，比例更好看 */
+            #game-container { border-width: 0px; border-radius: 0px; }
+            #status-bar { font-size: 13px; padding: 5px 10px; }
+            #sys-msg { display: none; }
+            #controls { bottom: 40px; gap: 15px; }
+            .move-btn { padding: 12px 25px; font-size: 16px; }
             #girl { width: 100px; height: 190px; bottom: 70px; }
             .boy { width: 100px; height: 210px; bottom: 70px; }
-            .bubble {
-                width: 140px; font-size: 12px; bottom: 250px; left: -20px;
-            }
+            .bubble { width: 140px; font-size: 12px; bottom: 250px; left: -20px; }
             @keyframes walkBounce { 0% { bottom: 70px; } 100% { bottom: 80px; } }
+            
+            /* 手機版規則框微調 */
+            #rules-box { padding: 12px 15px; max-width: 280px; }
+            #rules-box h3 { font-size: 18px; margin-bottom: 8px;}
+            #rules-box ul { font-size: 14px; line-height: 1.6; }
         }
     </style>
 </head>
@@ -173,7 +170,21 @@
 
     <div id="overlay">
         <h1 id="overlay-title">✨ 衛教電眼美女 ✨</h1>
-        <p id="overlay-desc">點擊帶有「正確健康知識」的男生電他！<br>電錯人會扣愛心喔！</p>
+        
+        <!-- 新增的遊戲規則說明框 -->
+        <div id="rules-box">
+            <h3>📖 遊戲規則</h3>
+            <ul>
+                <li>🚶‍♀️ <b>移動：</b>長按下方按鈕尋找目標。</li>
+                <li>💬 <b>判斷：</b>觀察男生頭上的健康知識。</li>
+                <li>⚡ <b>電他：</b>如果是「<b>正確觀念</b>」，立刻點他拿分數！</li>
+                <li>💔 <b>小心：</b>點到「<b>錯誤迷思</b>」會被扣愛心喔！</li>
+            </ul>
+        </div>
+        
+        <!-- 原本的提示文字 (預設隱藏，過關或失敗時才顯示) -->
+        <p id="overlay-desc"></p>
+        
         <button id="start-btn" onclick="startGame()">開始遊戲</button>
     </div>
 </div>
@@ -310,7 +321,15 @@
         cameraX = 0;
         boyBag = []; 
         document.getElementById("boys-container").innerHTML = "";
-        document.getElementById("start-btn").onclick = startGame;
+        
+        // --- 點擊開始遊戲後，確保按鈕綁定正確的重啟事件 ---
+        let btn = document.getElementById("start-btn");
+        btn.onclick = function() {
+            // 如果是從「重新挑戰」點擊，把規則框變回來
+            document.getElementById("rules-box").style.display = "block";
+            document.getElementById("overlay-desc").style.display = "none";
+            startGame();
+        };
 
         updateUI();
         stopMoving(); 
@@ -329,7 +348,6 @@
         let sysMsg = document.getElementById("sys-msg");
         sysMsg.innerText = msg;
         sysMsg.style.color = color;
-        // 如果是在大螢幕才會短暫顯示文字提示
         if(window.innerWidth > 600) {
             setTimeout(() => { sysMsg.innerText = "左右移動尋找目標！"; sysMsg.style.color = "#e65100"; }, 2000);
         }
@@ -450,6 +468,10 @@
         let overlay = document.getElementById("overlay");
         overlay.style.display = "flex";
         
+        // --- 隱藏規則框，顯示過關文字 ---
+        document.getElementById("rules-box").style.display = "none";
+        document.getElementById("overlay-desc").style.display = "block";
+        
         document.getElementById("overlay-title").innerText = `✨ 第 ${currentLevel} 關 通關！ ✨`;
         document.getElementById("overlay-desc").innerHTML = `太棒了！準備好迎接下一關了嗎？<br>下一關過關目標：${targetScores[currentLevel]} 分`;
         
@@ -485,12 +507,21 @@
         let overlay = document.getElementById("overlay");
         overlay.style.display = "flex";
         
+        // --- 隱藏規則框，顯示結束文字 ---
+        document.getElementById("rules-box").style.display = "none";
+        document.getElementById("overlay-desc").style.display = "block";
+        
         document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";
         document.getElementById("overlay-desc").innerHTML = msg;
         
         let btn = document.getElementById("start-btn");
         btn.innerText = "重新挑戰";
-        btn.onclick = startGame; 
+        // 點擊後會觸發上面 startGame 中重新綁定的邏輯，把規則框叫回來
+        btn.onclick = function() {
+            document.getElementById("rules-box").style.display = "block";
+            document.getElementById("overlay-desc").style.display = "none";
+            startGame();
+        };
     }
 </script>
 
