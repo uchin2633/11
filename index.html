@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>衛教電眼美女 - 防碰撞完美版</title>
+    <title>衛教電眼美女 - 支援鍵盤完美版</title>
     <style>
         /* --- 全域設定 --- */
         body {
@@ -169,7 +169,7 @@
         <div id="rules-box">
             <h3>📖 遊戲規則</h3>
             <ul>
-                <li>🚶‍♀️ <b>移動：</b>長按下方按鈕尋找目標。</li>
+                <li>🚶‍♀️ <b>移動：</b>長按下方按鈕(或鍵盤左右鍵)尋找目標。</li>
                 <li>💬 <b>判斷：</b>觀察男生頭上的健康知識。</li>
                 <li>⚡ <b>電他：</b>如果是「<b>正確觀念</b>」，立刻點他拿分數！</li>
                 <li>💔 <b>小心：</b>點到「<b>錯誤迷思</b>」會被扣愛心喔！</li>
@@ -187,7 +187,7 @@
     bgMusic.loop = true; 
     bgMusic.volume = 0.5; 
 
-    /* --- 題庫 (已包含所有解析) --- */
+    /* --- 題庫 --- */
     const questions = [
         { text: "均衡飲食有助於增強免疫力。", isTrue: true },
         { text: "為了快速減肥，可以完全不吃碳水化合物。", isTrue: false, explanation: "碳水化合物是能量主要來源，完全不吃會流失肌肉並讓代謝變慢。" },
@@ -361,7 +361,7 @@
         animationFrame = requestAnimationFrame(gameLoop);
     }
 
-    /* --- 新增：防碰撞雷達邏輯 --- */
+    /* --- 防碰撞雷達邏輯 --- */
     function spawnBoy() {
         if (document.querySelectorAll('.boy').length > 5) return;
         
@@ -369,7 +369,6 @@
         let isSafe = false;
         let attempts = 0;
 
-        // 幫男生尋找「安全社交距離」，最多試 10 次
         while (!isSafe && attempts < 10) {
             boyX = Math.random() * (worldWidth - 200) + 100;
             isSafe = true;
@@ -377,7 +376,6 @@
 
             for (let i = 0; i < existingBoys.length; i++) {
                 let existingX = parseFloat(existingBoys[i].style.left);
-                // 氣泡框寬度加上一點緩衝，設定安全距離為 250px
                 if (Math.abs(boyX - existingX) < 250) {
                     isSafe = false;
                     break;
@@ -386,7 +384,6 @@
             attempts++;
         }
 
-        // 如果運氣不好找不到空位，這次就不讓他出場
         if (!isSafe) return;
 
         let q = questions[Math.floor(Math.random() * questions.length)];
@@ -539,6 +536,28 @@
             startGame();
         };
     }
+
+    /* ========================================= */
+    /* ⌨️ 新增：鍵盤控制事件監聽器                 */
+    /* ========================================= */
+    window.addEventListener('keydown', function(e) {
+        // 如果按下左鍵或是 A 鍵
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+            startMoving(-1);
+        } 
+        // 如果按下右鍵或是 D 鍵
+        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+            startMoving(1);
+        }
+    });
+
+    window.addEventListener('keyup', function(e) {
+        // 只要放開左右鍵或 AD 鍵，就停止移動
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || 
+            e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+            stopMoving();
+        }
+    });
 </script>
 
 </body>
