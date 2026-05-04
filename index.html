@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>衛教電眼美女 - 完整規則版</title>
+    <title>衛教電眼美女 - 滿分教育解析版</title>
     <style>
         /* --- 全域設定 --- */
         body {
@@ -16,14 +16,10 @@
         }
         
         #game-container {
-            width: 100vw; 
-            height: 100vh; height: 100dvh; 
+            width: 100vw; height: 100vh; height: 100dvh; 
             max-width: 900px; max-height: 600px;
-            background-color: #fdf2f8;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            position: relative; overflow: hidden; 
-            border: 8px solid #f8bbd0;
-            box-sizing: border-box;
+            background-color: #fdf2f8; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            position: relative; overflow: hidden; border: 8px solid #f8bbd0; box-sizing: border-box;
         }
         
         /* --- 狀態欄 --- */
@@ -38,46 +34,34 @@
         /* --- 圖片背景 --- */
         #world {
             position: absolute; top: 0; left: 0;
-            width: 3000px; height: 100%;
-            transition: transform 0.1s linear;
-            background-image: url('bg.jpg'); 
-            background-size: auto 100%;
-            background-repeat: repeat-x;
-            background-position: left top;
+            width: 3000px; height: 100%; transition: transform 0.1s linear;
+            background-image: url('bg.jpg'); background-size: auto 100%;
+            background-repeat: repeat-x; background-position: left top;
         }
 
-        /* --- 圖片版女主角設定 --- */
+        /* --- 角色設定 --- */
         #girl {
             position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-            width: 120px; height: 230px; 
-            background-image: url('girl.png');
-            background-size: contain;
-            background-position: center bottom;
-            background-repeat: no-repeat;
-            z-index: 50; 
-            pointer-events: none; 
+            width: 120px; height: 230px; background-image: url('girl.png');
+            background-size: contain; background-position: center bottom; background-repeat: no-repeat;
+            z-index: 50; pointer-events: none; 
         }
         #girl.walking { animation: walkBounce 0.3s infinite alternate; }
         @keyframes walkBounce { 0% { bottom: 80px; } 100% { bottom: 95px; } }
 
-        /* --- 圖片版男生設定 --- */
         .boy { 
-            position: absolute; bottom: 80px; 
-            width: 120px; height: 250px; 
+            position: absolute; bottom: 80px; width: 120px; height: 250px; 
             cursor: pointer; z-index: 40; transition: 0.3s; 
-            background-size: contain;
-            background-position: center bottom;
-            background-repeat: no-repeat;
+            background-size: contain; background-position: center bottom; background-repeat: no-repeat;
         }
         .boy:hover { transform: scale(1.05); }
         
         .boy .status-face { 
             position: absolute; top: 15%; left: 50%; transform: translateX(-50%); 
-            font-size: 50px; z-index: 45; display: none; 
-            text-shadow: 0 0 15px rgba(255,255,255,0.9);
+            font-size: 50px; z-index: 45; display: none; text-shadow: 0 0 15px rgba(255,255,255,0.9);
         }
 
-        /* --- 題目對話框 --- */
+        /* --- 對話框與按鈕 --- */
         .bubble {
             position: absolute; bottom: 270px; left: -30px; width: 180px;
             background: rgba(255, 255, 255, 0.95); border: 4px solid #f48fb1; border-radius: 15px;
@@ -86,56 +70,68 @@
         }
         .bubble::after { content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); border-width: 12px 12px 0; border-style: solid; border-color: #f48fb1 transparent transparent transparent; }
         
-        /* 操作按鈕 */
         #controls { position: absolute; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 20px; z-index: 100; }
         .move-btn { 
             padding: 15px 30px; font-size: 18px; border: none; border-radius: 30px; 
             background-color: #ec407a; color: white; font-weight: bold; cursor: pointer; 
-            box-shadow: 0 5px #ad1457; transition: 0.2s;
-            touch-action: manipulation; 
+            box-shadow: 0 5px #ad1457; transition: 0.2s; touch-action: manipulation; 
             -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; outline: none; 
         }
         .move-btn:active { box-shadow: 0 1px #ad1457; transform: translateY(4px); }
         
-        /* 雷射光特效 */
         .laser { position: absolute; height: 10px; background: linear-gradient(90deg, #ff33cc, #fff); box-shadow: 0 0 15px #ff33cc, 0 0 30px #fff; transform-origin: left center; z-index: 60; border-radius: 5px; pointer-events: none; }
         
-        /* 轉場與開始畫面 */
+        /* --- 轉場、規則與錯題解析面板 --- */
         #overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255, 240, 245, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; }
-        #overlay h1 { color: #d81b60; font-size: 32px; margin-bottom: 15px; text-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        #overlay h1 { color: #d81b60; font-size: 30px; margin-bottom: 10px; text-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        #overlay-desc { font-size: 18px; color: #ad1457; font-weight: bold; margin-bottom: 15px; text-align: center; padding: 0 20px; display: none; }
         
-        /* --- 遊戲規則框樣式 --- */
+        /* 規則框 */
         #rules-box {
             background: white; border: 3px dashed #f48fb1; border-radius: 15px;
-            padding: 15px 25px; margin-bottom: 25px; width: 85%; max-width: 350px;
+            padding: 15px; margin-bottom: 20px; width: 85%; max-width: 350px;
             color: #ad1457; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: left;
         }
-        #rules-box h3 { margin: 0 0 10px 0; text-align: center; color: #d81b60; font-size: 20px; }
-        #rules-box ul { margin: 0; padding-left: 20px; line-height: 1.8; font-size: 16px; font-weight: bold;}
-        #rules-box li { margin-bottom: 5px; }
+        #rules-box h3 { margin: 0 0 10px 0; text-align: center; color: #d81b60; font-size: 18px; }
+        #rules-box ul { margin: 0; padding-left: 20px; line-height: 1.6; font-size: 15px; font-weight: bold;}
+        
+        /* 錯題解析框 (新增) */
+        #mistakes-box {
+            background: #fff; border: 3px solid #ff5252; border-radius: 15px;
+            width: 85%; max-width: 450px; margin-bottom: 20px; padding: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+        }
+        #mistakes-box h3 { margin: 5px 0 10px 0; color: #d32f2f; font-size: 18px; text-align: center; border-bottom: 2px solid #ffcdd2; padding-bottom: 5px;}
+        .scroll-area { max-height: 250px; overflow-y: auto; font-size: 14px; text-align: left; padding-right: 5px;}
+        .scroll-area p { margin: 0 0 10px 0; padding-bottom: 10px; border-bottom: 1px dashed #ccc; line-height: 1.5; color: #333; }
+        .scroll-area p:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .scroll-area b { color: #d32f2f; }
+        .scroll-area .correct-ans { color: #2e7d32; font-weight: bold; }
 
-        #overlay-desc { font-size: 18px; color: #ad1457; font-weight: bold; margin-bottom: 25px; text-align: center; padding: 0 20px; display: none; }
-        #start-btn { padding: 15px 40px; font-size: 20px; background-color: #43a047; color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 6px #1b5e20; transition: 0.2s;}
-        #start-btn:active { transform: translateY(4px); box-shadow: 0 2px #1b5e20; }
+        #start-btn { padding: 12px 35px; font-size: 18px; background-color: #43a047; color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 5px #1b5e20; transition: 0.2s; margin-top: 5px;}
+        #start-btn:active { transform: translateY(4px); box-shadow: 0 1px #1b5e20; }
 
-        /* ========================================= */
-        /* 📱 手機專屬響應式設計 (RWD)               */
-        /* ========================================= */
+        /* --- 手機 RWD --- */
         @media (max-width: 600px) {
             #game-container { border-width: 0px; border-radius: 0px; }
             #status-bar { font-size: 13px; padding: 5px 10px; }
             #sys-msg { display: none; }
-            #controls { bottom: 40px; gap: 15px; }
+            #controls { bottom: 35px; gap: 15px; }
             .move-btn { padding: 12px 25px; font-size: 16px; }
             #girl { width: 100px; height: 190px; bottom: 70px; }
             .boy { width: 100px; height: 210px; bottom: 70px; }
             .bubble { width: 140px; font-size: 12px; bottom: 250px; left: -20px; }
             @keyframes walkBounce { 0% { bottom: 70px; } 100% { bottom: 80px; } }
             
-            /* 手機版規則框微調 */
-            #rules-box { padding: 12px 15px; max-width: 280px; }
-            #rules-box h3 { font-size: 18px; margin-bottom: 8px;}
-            #rules-box ul { font-size: 14px; line-height: 1.6; }
+            #overlay h1 { font-size: 24px; }
+            #rules-box { padding: 10px; max-width: 280px; }
+            #rules-box h3 { font-size: 16px; }
+            #rules-box ul { font-size: 14px; }
+            
+            /* 手機版錯題框稍微縮小高度，避免按鈕被擠到螢幕外 */
+            .scroll-area { max-height: 180px; font-size: 13px; }
+            #mistakes-box h3 { font-size: 16px; }
+            #overlay-desc { font-size: 16px; margin-bottom: 10px;}
         }
     </style>
 </head>
@@ -171,7 +167,6 @@
     <div id="overlay">
         <h1 id="overlay-title">✨ 衛教電眼美女 ✨</h1>
         
-        <!-- 新增的遊戲規則說明框 -->
         <div id="rules-box">
             <h3>📖 遊戲規則</h3>
             <ul>
@@ -182,8 +177,11 @@
             </ul>
         </div>
         
-        <!-- 原本的提示文字 (預設隱藏，過關或失敗時才顯示) -->
+        <!-- 文字提示區域 -->
         <p id="overlay-desc"></p>
+        
+        <!-- 錯題解析區域將會動態插入在這裡 -->
+        <div id="mistakes-container"></div>
         
         <button id="start-btn" onclick="startGame()">開始遊戲</button>
     </div>
@@ -194,105 +192,106 @@
     bgMusic.loop = true; 
     bgMusic.volume = 0.5; 
 
+    /* --- 題庫 (已幫所有 false 題目加入 explanation 解析) --- */
     const questions = [
         { text: "均衡飲食有助於增強免疫力。", isTrue: true },
-        { text: "為了快速減肥，可以完全不吃碳水化合物。", isTrue: false },
+        { text: "為了快速減肥，可以完全不吃碳水化合物。", isTrue: false, explanation: "碳水化合物是能量主要來源，完全不吃會流失肌肉並讓代謝變慢。" },
         { text: "每天應攝取足夠水分，大約是體重乘以30毫升。", isTrue: true },
-        { text: "喝市售果汁等於吃新鮮水果，可以完全取代。", isTrue: false },
+        { text: "喝市售果汁等於吃新鮮水果，可以完全取代。", isTrue: false, explanation: "市售果汁濾掉了纖維且常額外加糖，無法取代原型水果的營養。" },
         { text: "燕麥和糙米屬於優質的全穀雜糧類。", isTrue: true },
-        { text: "吃雞蛋會讓膽固醇飆高，一天絕對不能吃超過一顆。", isTrue: false },
+        { text: "吃雞蛋會讓膽固醇飆高，一天絕對不能吃超過一顆。", isTrue: false, explanation: "飲食中的膽固醇對血液膽固醇影響不大，健康人一天一顆沒問題。" },
         { text: "喝含糖飲料是造成年輕人肥胖與代謝問題的主要原因之一。", isTrue: true },
         { text: "無糖綠茶雖然沒有熱量，但仍不能完全取代白開水。", isTrue: true },
-        { text: "植物性食物中完全沒有蛋白質，只能靠吃肉補充。", isTrue: false },
+        { text: "植物性食物中完全沒有蛋白質，只能靠吃肉補充。", isTrue: false, explanation: "豆漿、豆腐、藜麥等植物性食物也都富含優質蛋白質。" },
         { text: "每天吃五份（五個拳頭大）的蔬菜水果可降低慢性病風險。", isTrue: true },
-        { text: "空腹吃水果會導致胃潰瘍，一定要飯後吃。", isTrue: false },
+        { text: "空腹吃水果會導致胃潰瘍，一定要飯後吃。", isTrue: false, explanation: "只要腸胃功能正常，空腹吃大部分水果並不會導致潰瘍。" },
         { text: "手搖飲的「微糖」通常還是含有相當於好幾顆方糖的糖分。", isTrue: true },
         { text: "攝取過多的鈉（鹽分）容易增加罹患高血壓的風險。", isTrue: true },
-        { text: "只要吃保健食品補充維生素，三餐隨便吃也沒關係。", isTrue: false },
+        { text: "只要吃保健食品補充維生素，三餐隨便吃也沒關係。", isTrue: false, explanation: "保健食品只能「輔助」，無法取代天然食物中豐富的植化素與纖維。" },
         { text: "細嚼慢嚥有助於大腦接收飽足感訊號，避免吃太多。", isTrue: true },
         { text: "運動後喝巧克力牛奶是補充碳水和蛋白質的好選擇。", isTrue: true },
-        { text: "吃宵夜絕對會胖，跟一整天的總熱量攝取無關。", isTrue: false },
+        { text: "吃宵夜絕對會胖，跟一整天的總熱量攝取無關。", isTrue: false, explanation: "變胖的關鍵是「一整天攝取的總熱量」超過消耗量，而非進食時間。" },
         { text: "深綠色蔬菜富含鈣質與葉酸，對健康非常有益。", isTrue: true },
-        { text: "為了健康，飲食應該完全無油、無鹽。", isTrue: false },
+        { text: "為了健康，飲食應該完全無油、無鹽。", isTrue: false, explanation: "身體需要好油維持荷爾蒙運作與吸收維生素，過度清淡反而不健康。" },
         { text: "與親友共餐不僅能享受美食，也有助於促進心理健康。", isTrue: true },
         { text: "正確且全程使用保險套能有效降低性病傳染風險。", isTrue: true },
-        { text: "體外射精是不會懷孕的，是非常安全的避孕法。", isTrue: false },
+        { text: "體外射精是不會懷孕的，是非常安全的避孕法。", isTrue: false, explanation: "男性射精前的分泌物就含有少量精子，仍有極高的懷孕風險。" },
         { text: "定期進行子宮頸抹片檢查能早期發現子宮頸癌。", isTrue: true },
-        { text: "只要沒有明顯症狀，發生性行為就不會傳染性病。", isTrue: false },
+        { text: "只要沒有明顯症狀，發生性行為就不會傳染性病。", isTrue: false, explanation: "許多性病(如HPV、披衣菌)初期沒有明顯症狀，但仍具傳染力。" },
         { text: "雙方同意是發生任何性行為的絕對前提。", isTrue: true },
-        { text: "算準安全期避孕法是100%準確，絕對不會懷孕。", isTrue: false },
+        { text: "算準安全期避孕法是100%準確，絕對不會懷孕。", isTrue: false, explanation: "女性排卵易受壓力與作息影響，安全期避孕法失敗率非常高。" },
         { text: "感染HPV(人類乳突病毒)目前是有疫苗可以施打預防的。", isTrue: true },
-        { text: "愛滋病可以透過與感染者共用餐具傳染。", isTrue: false },
-        { text: "發生性行為時，若男生沒有射精就絕對不會感染性病。", isTrue: false },
+        { text: "愛滋病可以透過與感染者共用餐具傳染。", isTrue: false, explanation: "愛滋病毒不會透過共用餐具、口水或日常接觸傳染。" },
+        { text: "發生性行為時，若男生沒有射精就絕對不會感染性病。", isTrue: false, explanation: "性病是透過體液和黏膜接觸傳染，不射精一樣會感染。" },
         { text: "保險套如果在皮夾裡放很久，容易因高溫摩擦而變質破損。", isTrue: true },
-        { text: "事後避孕藥很方便，可以當作常規避孕方式經常使用。", isTrue: false },
-        { text: "女性在生理期期間發生性行為，絕對不可能會懷孕。", isTrue: false },
-        { text: "保險套戴兩層可以增加保護力，更不容易破。", isTrue: false },
+        { text: "事後避孕藥很方便，可以當作常規避孕方式經常使用。", isTrue: false, explanation: "事後藥含高劑量荷爾蒙，常吃會亂經傷身，只能作為緊急補救。" },
+        { text: "女性在生理期期間發生性行為，絕對不可能會懷孕。", isTrue: false, explanation: "精子在體內可存活數天，若排卵期提前，經期性行為仍可能懷孕。" },
+        { text: "保險套戴兩層可以增加保護力，更不容易破。", isTrue: false, explanation: "戴兩層反而會因為橡膠過度摩擦而更容易破裂。" },
         { text: "若發現感染性病，性伴侶也必須一起接受檢查與治療。", isTrue: true },
         { text: "口交或肛交也是有可能會傳染性傳染病的。", isTrue: true },
         { text: "流感疫苗每年都要重新施打，因為病毒株會變異。", isTrue: true },
-        { text: "吃抗生素可以有效治療一般感冒。", isTrue: false },
+        { text: "吃抗生素可以有效治療一般感冒。", isTrue: false, explanation: "感冒多為「病毒」感染，抗生素只能殺「細菌」，對病毒無效。" },
         { text: "勤洗手是預防腸病毒與多種傳染病最有效的方法。", isTrue: true },
-        { text: "打過水痘疫苗就代表這輩子絕對不會長帶狀皰疹。", isTrue: false },
+        { text: "打過水痘疫苗就代表這輩子絕對不會長帶狀皰疹。", isTrue: false, explanation: "水痘病毒會潛伏在神經節，免疫力低下時仍可能引發帶狀皰疹。" },
         { text: "性行為中途才戴上保險套，依然有很高的懷孕與感染風險。", isTrue: true },
         { text: "高血壓早期通常沒有明顯症狀，被稱為「沉默的殺手」。", isTrue: true },
-        { text: "年輕人不可能得糖尿病，那是老年人的專利。", isTrue: false },
+        { text: "年輕人不可能得糖尿病，那是老年人的專利。", isTrue: false, explanation: "飲食高糖高油加上少動，第二型糖尿病已有明顯年輕化的趨勢。" },
         { text: "定期進行大腸癌篩檢（如糞便潛血檢查）可有效降低死亡率。", isTrue: true },
         { text: "乳癌篩檢主要依靠乳房X光攝影，能早期發現病灶。", isTrue: true },
-        { text: "只要父母沒有高血壓，我就絕對不會得高血壓。", isTrue: false },
+        { text: "只要父母沒有高血壓，我就絕對不會得高血壓。", isTrue: false, explanation: "遺傳只是因素之一，後天不良的飲食與生活習慣更容易引發高血壓。" },
         { text: "腰圍過粗是判斷代謝症候群的重要指標之一。", isTrue: true },
-        { text: "BMI（身體質量指數）是評估肥胖的唯一絕對標準。", isTrue: false },
+        { text: "BMI（身體質量指數）是評估肥胖的唯一絕對標準。", isTrue: false, explanation: "體脂率和腰圍也很重要，有些人BMI正常但體脂過高(泡芙人)。" },
         { text: "抽菸不僅增加肺癌風險，也會大幅增加心血管疾病機率。", isTrue: true },
-        { text: "只要每天有運動，坐整天辦公桌也不會影響健康。", isTrue: false },
+        { text: "只要每天有運動，坐整天辦公桌也不會影響健康。", isTrue: false, explanation: "長時間久坐本身就會增加心血管風險，建議每小時都要起身活動。" },
         { text: "維持理想體重有助於預防多種慢性病與癌症。", isTrue: true },
         { text: "大腸癌的發生與高脂肪、低纖維的飲食習慣密切相關。", isTrue: true },
-        { text: "低血壓比高血壓更危險，需要立刻吃藥控制。", isTrue: false },
-        { text: "糖尿病患者只要不吃甜食，血糖就會完全正常。", isTrue: false },
+        { text: "低血壓比高血壓更危險，需要立刻吃藥控制。", isTrue: false, explanation: "無症狀的偏低血壓通常不需吃藥，除非伴隨頭暈、休克等嚴重症狀。" },
+        { text: "糖尿病患者只要不吃甜食，血糖就會完全正常。", isTrue: false, explanation: "過量的白飯、麵條等精緻澱粉在體內也會轉換成糖分，讓血糖飆高。" },
         { text: "骨質疏鬆症在早期通常沒有疼痛感，容易被忽略。", isTrue: true },
         { text: "過度飲酒會增加罹患肝癌與多種消化道癌症的風險。", isTrue: true },
-        { text: "二手菸對身體的危害比直接抽菸還要小很多。", isTrue: false },
-        { text: "血脂過高的人，血液一定會看起來很濃稠。", isTrue: false },
+        { text: "二手菸對身體的危害比直接抽菸還要小很多。", isTrue: false, explanation: "二手菸燃燒不完全，產生的致癌物與有毒物質濃度甚至比一手菸高。" },
+        { text: "血脂過高的人，血液一定會看起來很濃稠。", isTrue: false, explanation: "血脂異常通常無法從外觀看出來，必須透過抽血檢查才能確診。" },
         { text: "有慢性病家族史的人，更應該提早進行健康檢查。", isTrue: true },
-        { text: "吃口服避孕藥會大幅增加罹患所有癌症的機率。", isTrue: false },
+        { text: "吃口服避孕藥會大幅增加罹患所有癌症的機率。", isTrue: false, explanation: "新型常規避孕藥安全，且在醫囑下使用能降低卵巢癌與子宮內膜癌機率。" },
         { text: "充足的睡眠有助於穩定血糖與血壓。", isTrue: true },
         { text: "保持良好的人際社交互動，有助於降低憂鬱和焦慮的風險。", isTrue: true },
-        { text: "心理生病了只是因為「不夠堅強」，只要看開點就會好。", isTrue: false },
+        { text: "心理生病了只是因為「不夠堅強」，只要看開點就會好。", isTrue: false, explanation: "心理疾病與大腦神經傳導物質失衡有關，需要專業治療與陪伴。" },
         { text: "適度的壓力可以提升表現，但長期慢性壓力會有害身心。", isTrue: true },
-        { text: "尋求心理諮商代表這個人精神有問題。", isTrue: false },
+        { text: "尋求心理諮商代表這個人精神有問題。", isTrue: false, explanation: "心理諮商就像幫情緒做SPA，任何人遇到壓力卡關時都可以尋求協助。" },
         { text: "規律的有氧運動能夠促進大腦分泌腦內啡，改善心情。", isTrue: true },
         { text: "在社群媒體上看到別人過得很好，容易產生比較心態與焦慮。", isTrue: true },
-        { text: "憂鬱症患者只要多出門走走，病態的憂鬱情緒就會立刻消失。", isTrue: false },
+        { text: "憂鬱症患者只要多出門走走，病態的憂鬱情緒就會立刻消失。", isTrue: false, explanation: "憂鬱症患者缺乏動力，強迫他們出門有時反而會增加他們的心理壓力。" },
         { text: "學會拒絕不合理的要求，是保護心理健康的重要界線。", isTrue: true },
         { text: "傾聽並給予情感支持，是陪伴低潮朋友最好的方式之一。", isTrue: true },
-        { text: "心理健康與身體健康是分開的，兩者不會互相影響。", isTrue: false },
+        { text: "心理健康與身體健康是分開的，兩者不會互相影響。", isTrue: false, explanation: "身心互相牽連，長期壓力會導致免疫力下降、腸胃不適等生理症狀。" },
         { text: "主動參與社團或志工活動，能增加社會歸屬感與幸福感。", isTrue: true },
-        { text: "男生哭泣或表達脆弱是不成熟的表現。", isTrue: false },
+        { text: "男生哭泣或表達脆弱是不成熟的表現。", isTrue: false, explanation: "表達真實情緒是健康的抒發管道，勇敢面對脆弱才是真正的成熟。" },
         { text: "霸凌不僅是肢體暴力，言語嘲笑與網路排擠也會造成嚴重創傷。", isTrue: true },
         { text: "遇到無法解決的心理困擾時，撥打1925安心專線是個好選擇。", isTrue: true },
         { text: "每天花一點時間進行正念或深呼吸，有助於調節自律神經。", isTrue: true },
-        { text: "所有的精神疾病都是因為遺傳，後天環境無法改變。", isTrue: false },
+        { text: "所有的精神疾病都是因為遺傳，後天環境無法改變。", isTrue: false, explanation: "後天環境、長期壓力與重大創傷也是誘發精神疾病的關鍵因素。" },
         { text: "維持固定的作息有助於穩定情緒與心理狀態。", isTrue: true },
-        { text: "跟朋友抱怨發牢騷對心理健康有害，應該把負面情緒藏起來。", isTrue: false },
+        { text: "跟朋友抱怨發牢騷對心理健康有害，應該把負面情緒藏起來。", isTrue: false, explanation: "適度吐露心事有助於釋放壓力，只要不淪為無止盡的抱怨就有益處。" },
         { text: "接納自己的不完美，是培養心理韌性的重要步驟。", isTrue: true },
         { text: "良好的人際溝通建立在「我訊息（I-message）」的表達上。", isTrue: true },
-        { text: "熬夜造成的傷害，可以靠假日睡到中午完全補回來。", isTrue: false },
+        { text: "熬夜造成的傷害，可以靠假日睡到中午完全補回來。", isTrue: false, explanation: "長期熬夜的睡眠債無法靠週末補回，反而會打亂生理時鐘越睡越累。" },
         { text: "使用3C產品時，每30分鐘應休息10分鐘保護視力。", isTrue: true },
-        { text: "只要在室內就不會接觸到紫外線，所以不需要防曬。", isTrue: false },
+        { text: "只要在室內就不會接觸到紫外線，所以不需要防曬。", isTrue: false, explanation: "UVA穿透力強，能穿透玻璃進入室內，長期照射依然會讓皮膚老化。" },
         { text: "每天刷牙兩次並使用牙線，是預防牙周病的基本功。", isTrue: true },
-        { text: "感冒流汗吹風會加重病情，所以發燒時應該蓋厚棉被逼汗。", isTrue: false },
-        { text: "扭傷時的第一處理原則是立刻熱敷和推拿。", isTrue: false },
+        { text: "感冒流汗吹風會加重病情，所以發燒時應該蓋厚棉被逼汗。", isTrue: false, explanation: "發燒逼汗容易導致脫水甚至休克，正確做法是保持通風並補充水分。" },
+        { text: "扭傷時的第一處理原則是立刻熱敷和推拿。", isTrue: false, explanation: "急性扭傷發炎期應先「冰敷」消腫，立刻熱敷或推拿會讓患部更腫痛。" },
         { text: "即使是陰天，戶外依然會有紫外線，需要注意防曬。", isTrue: true },
         { text: "久坐不動被認為是新型態的健康殺手，危害等同於吸菸。", isTrue: true },
-        { text: "打噴嚏時用雙手手掌捂住口鼻是正確的衛生習慣。", isTrue: false },
+        { text: "打噴嚏時用雙手手掌捂住口鼻是正確的衛生習慣。", isTrue: false, explanation: "用手掌捂會沾滿飛沫病菌，接觸物品會傳染給人。應使用手肘內側遮擋。" },
         { text: "定期清洗床單和枕頭套，有助於減少臉部痘痘與過敏。", isTrue: true },
-        { text: "吃維他命B群可以提供熱量，讓人精神百倍。", isTrue: false },
-        { text: "洗澡水越熱越能消除疲勞，對皮膚也越好。", isTrue: false },
-        { text: "近視只要戴眼鏡看得清楚就好，度數深淺不會影響眼球健康。", isTrue: false },
+        { text: "吃維他命B群可以提供熱量，讓人精神百倍。", isTrue: false, explanation: "B群本身沒有熱量，它只是幫助把食物營養轉換成能量的輔助酵素。" },
+        { text: "洗澡水越熱越能消除疲勞，對皮膚也越好。", isTrue: false, explanation: "水溫過熱會洗去皮膚表層保護性油脂，容易造成皮膚乾燥與發癢發炎。" },
+        { text: "近視只要戴眼鏡看得清楚就好，度數深淺不會影響眼球健康。", isTrue: false, explanation: "高度近視會拉長眼軸，大幅增加視網膜剝離、青光眼與黃斑部病變風險。" },
         { text: "睡前滑手機的藍光會抑制褪黑激素分泌，影響睡眠品質。", isTrue: true },
         { text: "剛吃飽馬上劇烈運動，容易造成消化不良與胃下垂風險。", isTrue: true },
-        { text: "流鼻血時應該要把頭往後仰，才不會讓血流出來。", isTrue: false },
+        { text: "流鼻血時應該要把頭往後仰，才不會讓血流出來。", isTrue: false, explanation: "往後仰會讓血液流進喉嚨引發嗆咳窒息，正確做法是頭微前傾捏住鼻翼。" },
         { text: "正確的搬重物姿勢是彎曲膝蓋蹲下，用腿部力量站起。", isTrue: true },
-        { text: "把食物放進冰箱就絕對不會壞，可以無限期保存。", isTrue: false },
+        { text: "把食物放進冰箱就絕對不會壞，可以無限期保存。", isTrue: false, explanation: "冰箱的低溫只能「延緩」細菌生長，食物放太久依然會腐敗變質。" },
         { text: "運動前進行動態暖身，可以降低肌肉拉傷的風險。", isTrue: true },
         { text: "微波爐加熱食物不會破壞所有營養素，有時比水煮保留更多維生素。", isTrue: true }
     ];
@@ -302,17 +301,16 @@
     let lives = 3;
     let targetScores = [50, 100, 150]; 
     
-    let cameraX = 0;
-    let worldWidth = 3000;
-    let viewWidth = 900;
-    let moveDirection = 0;
-    let animationFrame;
-    let spawnTimer;
+    let cameraX = 0; let worldWidth = 3000; let viewWidth = 900;
+    let moveDirection = 0; let animationFrame; let spawnTimer;
     let boyBag = []; 
+    
+    // 錯題收集袋
+    let mistakes = []; 
 
     function startGame() {
         document.getElementById("overlay").style.display = "none";
-        
+        document.getElementById("mistakes-container").innerHTML = ""; // 清空畫面上一次的錯題
         bgMusic.play().catch(error => console.log("音樂播放失敗", error));
         
         currentLevel = 1;
@@ -320,12 +318,12 @@
         lives = 3;
         cameraX = 0;
         boyBag = []; 
+        mistakes = []; // 遊戲重新開始，錯題袋清空
+        
         document.getElementById("boys-container").innerHTML = "";
         
-        // --- 點擊開始遊戲後，確保按鈕綁定正確的重啟事件 ---
         let btn = document.getElementById("start-btn");
         btn.onclick = function() {
-            // 如果是從「重新挑戰」點擊，把規則框變回來
             document.getElementById("rules-box").style.display = "block";
             document.getElementById("overlay-desc").style.display = "none";
             startGame();
@@ -354,13 +352,10 @@
     }
 
     function startMoving(dir) {
-        moveDirection = dir;
-        document.getElementById("girl").classList.add('walking');
+        moveDirection = dir; document.getElementById("girl").classList.add('walking');
     }
-
     function stopMoving() {
-        moveDirection = 0;
-        document.getElementById("girl").classList.remove('walking');
+        moveDirection = 0; document.getElementById("girl").classList.remove('walking');
     }
 
     function gameLoop() {
@@ -386,22 +381,17 @@
         let boyId = boyBag.pop(); 
         
         let boyDiv = document.createElement("div");
-        boyDiv.className = "boy";
-        boyDiv.style.left = boyX + "px";
+        boyDiv.className = "boy"; boyDiv.style.left = boyX + "px";
         boyDiv.style.backgroundImage = `url('boy${boyId}.png')`;
-        
-        boyDiv.innerHTML = `
-            <div class="status-face">😍</div>
-            <div class="bubble">${q.text}</div>
-        `;
-        
-        boyDiv.onclick = function() { shootLaser(boyDiv, q.isTrue); };
+        boyDiv.innerHTML = `<div class="status-face">😍</div><div class="bubble">${q.text}</div>`;
+        boyDiv.onclick = function() { shootLaser(boyDiv, q); }; // 傳遞整個題目物件 q
         document.getElementById("boys-container").appendChild(boyDiv);
         
         setTimeout(() => { if(boyDiv.parentElement) boyDiv.remove(); }, 12000);
     }
 
-    function shootLaser(boyElement, isTrue) {
+    // 將第二個參數改成整個題目物件 (questionObj)
+    function shootLaser(boyElement, questionObj) {
         let container = document.getElementById("game-container");
         let girl = document.getElementById("girl");
         let containerRect = container.getBoundingClientRect();
@@ -428,7 +418,7 @@
         let statusFace = boyElement.querySelector('.status-face');
         statusFace.style.display = 'block';
 
-        if (isTrue) {
+        if (questionObj.isTrue) {
             statusFace.innerText = "😍";
             score += 10;
             showMsg("⚡ 電眼成功！獲得大美女分數", "#d81b60");
@@ -436,6 +426,11 @@
             statusFace.innerText = "💀";
             lives -= 1;
             showMsg("❌ 糟糕！電到迷思，扣生命值", "#424242");
+            
+            // --- 收集錯題邏輯：如果這題沒被加過，就放進錯題本 ---
+            if (!mistakes.some(m => m.text === questionObj.text)) {
+                mistakes.push(questionObj);
+            }
         }
 
         updateUI();
@@ -460,20 +455,36 @@
         }
     }
 
+    // 生成錯題解析的 HTML 模板
+    function getMistakesHTML() {
+        if (mistakes.length === 0) return ""; // 沒錯題就不顯示
+        
+        let html = `<div id='mistakes-box'>
+            <h3>📝 剛剛不小心點錯的迷思</h3>
+            <div class='scroll-area'>`;
+            
+        mistakes.forEach(m => {
+            let explanation = m.explanation ? m.explanation : "這是不正確的觀念喔！";
+            html += `<p><b>❌ 迷思：</b>${m.text}<br><span class='correct-ans'>💡 正解：${explanation}</span></p>`;
+        });
+        
+        html += `</div></div>`;
+        return html;
+    }
+
     function levelClearTransition() {
-        cancelAnimationFrame(animationFrame); 
-        clearInterval(spawnTimer); 
-        stopMoving(); 
+        cancelAnimationFrame(animationFrame); clearInterval(spawnTimer); stopMoving(); 
         
         let overlay = document.getElementById("overlay");
         overlay.style.display = "flex";
         
-        // --- 隱藏規則框，顯示過關文字 ---
         document.getElementById("rules-box").style.display = "none";
         document.getElementById("overlay-desc").style.display = "block";
-        
         document.getElementById("overlay-title").innerText = `✨ 第 ${currentLevel} 關 通關！ ✨`;
         document.getElementById("overlay-desc").innerHTML = `太棒了！準備好迎接下一關了嗎？<br>下一關過關目標：${targetScores[currentLevel]} 分`;
+        
+        // 顯示錯題解析
+        document.getElementById("mistakes-container").innerHTML = getMistakesHTML();
         
         let btn = document.getElementById("start-btn");
         btn.innerText = "進入下一關 ➡️";
@@ -482,41 +493,34 @@
 
     function nextLevel() {
         document.getElementById("overlay").style.display = "none";
+        document.getElementById("mistakes-container").innerHTML = ""; // 清空錯題畫面
         
-        currentLevel++; 
-        score = 0; 
-        cameraX = 0;
-        boyBag = [];
+        currentLevel++; score = 0; cameraX = 0; boyBag = [];
+        mistakes = []; // 進入新關卡，錯題袋歸零
+        
         document.getElementById("boys-container").innerHTML = ""; 
-        
         document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";
         
-        updateUI();
-        gameLoop();
-        spawnTimer = setInterval(spawnBoy, 2500);
+        updateUI(); gameLoop(); spawnTimer = setInterval(spawnBoy, 2500);
     }
 
     function endGame(msg) {
-        cancelAnimationFrame(animationFrame); 
-        clearInterval(spawnTimer);
-        stopMoving();
-        
-        bgMusic.pause();
-        bgMusic.currentTime = 0;
+        cancelAnimationFrame(animationFrame); clearInterval(spawnTimer); stopMoving();
+        bgMusic.pause(); bgMusic.currentTime = 0;
 
         let overlay = document.getElementById("overlay");
         overlay.style.display = "flex";
         
-        // --- 隱藏規則框，顯示結束文字 ---
         document.getElementById("rules-box").style.display = "none";
         document.getElementById("overlay-desc").style.display = "block";
-        
         document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";
         document.getElementById("overlay-desc").innerHTML = msg;
         
+        // 顯示錯題解析
+        document.getElementById("mistakes-container").innerHTML = getMistakesHTML();
+        
         let btn = document.getElementById("start-btn");
         btn.innerText = "重新挑戰";
-        // 點擊後會觸發上面 startGame 中重新綁定的邏輯，把規則框叫回來
         btn.onclick = function() {
             document.getElementById("rules-box").style.display = "block";
             document.getElementById("overlay-desc").style.display = "none";
