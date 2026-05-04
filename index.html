@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>衛教電眼美女 - 滿分教育解析版</title>
+    <title>衛教電眼美女 - 防碰撞完美版</title>
     <style>
         /* --- 全域設定 --- */
         body {
@@ -95,7 +95,7 @@
         #rules-box h3 { margin: 0 0 10px 0; text-align: center; color: #d81b60; font-size: 18px; }
         #rules-box ul { margin: 0; padding-left: 20px; line-height: 1.6; font-size: 15px; font-weight: bold;}
         
-        /* 錯題解析框 (新增) */
+        /* 錯題解析框 */
         #mistakes-box {
             background: #fff; border: 3px solid #ff5252; border-radius: 15px;
             width: 85%; max-width: 450px; margin-bottom: 20px; padding: 10px;
@@ -128,7 +128,6 @@
             #rules-box h3 { font-size: 16px; }
             #rules-box ul { font-size: 14px; }
             
-            /* 手機版錯題框稍微縮小高度，避免按鈕被擠到螢幕外 */
             .scroll-area { max-height: 180px; font-size: 13px; }
             #mistakes-box h3 { font-size: 16px; }
             #overlay-desc { font-size: 16px; margin-bottom: 10px;}
@@ -177,12 +176,8 @@
             </ul>
         </div>
         
-        <!-- 文字提示區域 -->
         <p id="overlay-desc"></p>
-        
-        <!-- 錯題解析區域將會動態插入在這裡 -->
         <div id="mistakes-container"></div>
-        
         <button id="start-btn" onclick="startGame()">開始遊戲</button>
     </div>
 </div>
@@ -192,7 +187,7 @@
     bgMusic.loop = true; 
     bgMusic.volume = 0.5; 
 
-    /* --- 題庫 (已幫所有 false 題目加入 explanation 解析) --- */
+    /* --- 題庫 (已包含所有解析) --- */
     const questions = [
         { text: "均衡飲食有助於增強免疫力。", isTrue: true },
         { text: "為了快速減肥，可以完全不吃碳水化合物。", isTrue: false, explanation: "碳水化合物是能量主要來源，完全不吃會流失肌肉並讓代謝變慢。" },
@@ -304,13 +299,11 @@
     let cameraX = 0; let worldWidth = 3000; let viewWidth = 900;
     let moveDirection = 0; let animationFrame; let spawnTimer;
     let boyBag = []; 
-    
-    // 錯題收集袋
     let mistakes = []; 
 
     function startGame() {
         document.getElementById("overlay").style.display = "none";
-        document.getElementById("mistakes-container").innerHTML = ""; // 清空畫面上一次的錯題
+        document.getElementById("mistakes-container").innerHTML = ""; 
         bgMusic.play().catch(error => console.log("音樂播放失敗", error));
         
         currentLevel = 1;
@@ -318,7 +311,7 @@
         lives = 3;
         cameraX = 0;
         boyBag = []; 
-        mistakes = []; // 遊戲重新開始，錯題袋清空
+        mistakes = []; 
         
         document.getElementById("boys-container").innerHTML = "";
         
@@ -368,10 +361,34 @@
         animationFrame = requestAnimationFrame(gameLoop);
     }
 
+    /* --- 新增：防碰撞雷達邏輯 --- */
     function spawnBoy() {
         if (document.querySelectorAll('.boy').length > 5) return;
         
-        let boyX = Math.random() * (worldWidth - 200) + 100;
+        let boyX;
+        let isSafe = false;
+        let attempts = 0;
+
+        // 幫男生尋找「安全社交距離」，最多試 10 次
+        while (!isSafe && attempts < 10) {
+            boyX = Math.random() * (worldWidth - 200) + 100;
+            isSafe = true;
+            let existingBoys = document.querySelectorAll('.boy');
+
+            for (let i = 0; i < existingBoys.length; i++) {
+                let existingX = parseFloat(existingBoys[i].style.left);
+                // 氣泡框寬度加上一點緩衝，設定安全距離為 250px
+                if (Math.abs(boyX - existingX) < 250) {
+                    isSafe = false;
+                    break;
+                }
+            }
+            attempts++;
+        }
+
+        // 如果運氣不好找不到空位，這次就不讓他出場
+        if (!isSafe) return;
+
         let q = questions[Math.floor(Math.random() * questions.length)];
         
         if (boyBag.length === 0) {
@@ -384,13 +401,12 @@
         boyDiv.className = "boy"; boyDiv.style.left = boyX + "px";
         boyDiv.style.backgroundImage = `url('boy${boyId}.png')`;
         boyDiv.innerHTML = `<div class="status-face">😍</div><div class="bubble">${q.text}</div>`;
-        boyDiv.onclick = function() { shootLaser(boyDiv, q); }; // 傳遞整個題目物件 q
+        boyDiv.onclick = function() { shootLaser(boyDiv, q); }; 
         document.getElementById("boys-container").appendChild(boyDiv);
         
         setTimeout(() => { if(boyDiv.parentElement) boyDiv.remove(); }, 12000);
     }
 
-    // 將第二個參數改成整個題目物件 (questionObj)
     function shootLaser(boyElement, questionObj) {
         let container = document.getElementById("game-container");
         let girl = document.getElementById("girl");
@@ -427,7 +443,6 @@
             lives -= 1;
             showMsg("❌ 糟糕！電到迷思，扣生命值", "#424242");
             
-            // --- 收集錯題邏輯：如果這題沒被加過，就放進錯題本 ---
             if (!mistakes.some(m => m.text === questionObj.text)) {
                 mistakes.push(questionObj);
             }
@@ -455,9 +470,8 @@
         }
     }
 
-    // 生成錯題解析的 HTML 模板
     function getMistakesHTML() {
-        if (mistakes.length === 0) return ""; // 沒錯題就不顯示
+        if (mistakes.length === 0) return ""; 
         
         let html = `<div id='mistakes-box'>
             <h3>📝 剛剛不小心點錯的迷思</h3>
@@ -483,7 +497,6 @@
         document.getElementById("overlay-title").innerText = `✨ 第 ${currentLevel} 關 通關！ ✨`;
         document.getElementById("overlay-desc").innerHTML = `太棒了！準備好迎接下一關了嗎？<br>下一關過關目標：${targetScores[currentLevel]} 分`;
         
-        // 顯示錯題解析
         document.getElementById("mistakes-container").innerHTML = getMistakesHTML();
         
         let btn = document.getElementById("start-btn");
@@ -493,10 +506,10 @@
 
     function nextLevel() {
         document.getElementById("overlay").style.display = "none";
-        document.getElementById("mistakes-container").innerHTML = ""; // 清空錯題畫面
+        document.getElementById("mistakes-container").innerHTML = ""; 
         
         currentLevel++; score = 0; cameraX = 0; boyBag = [];
-        mistakes = []; // 進入新關卡，錯題袋歸零
+        mistakes = []; 
         
         document.getElementById("boys-container").innerHTML = ""; 
         document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";
@@ -516,7 +529,6 @@
         document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";
         document.getElementById("overlay-desc").innerHTML = msg;
         
-        // 顯示錯題解析
         document.getElementById("mistakes-container").innerHTML = getMistakesHTML();
         
         let btn = document.getElementById("start-btn");
