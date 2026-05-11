@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>衛教電眼美女 - 題目不重複完美版</title>
+    <title>衛教電眼美女 - 超長走廊完美版</title>
     <style>
         /* --- 全域設定 --- */
         body {
@@ -34,7 +34,8 @@
         /* --- 圖片背景 --- */
         #world {
             position: absolute; top: 0; left: 0;
-            width: 3000px; height: 100%; transition: transform 0.1s linear;
+            width: 6000px; /* 🌟 走廊加長一倍！原本是 3000px */
+            height: 100%; transition: transform 0.1s linear;
             background-image: url('bg.jpg'); background-size: auto 100%;
             background-repeat: repeat-x; background-position: left top;
         }
@@ -61,12 +62,15 @@
             font-size: 50px; z-index: 45; display: none; text-shadow: 0 0 15px rgba(255,255,255,0.9);
         }
 
-        /* --- 對話框與按鈕 --- */
+        /* --- 題目對話框 (🌟 優化排版，防止切字) --- */
         .bubble {
-            position: absolute; bottom: 270px; left: -30px; width: 180px;
+            position: absolute; bottom: 270px; 
+            left: 50%; transform: translateX(-50%); /* 讓氣泡永遠置中於男生頭上 */
+            width: max-content; max-width: 220px; /* 自動適應文字長度，且不超過 220px */
             background: rgba(255, 255, 255, 0.95); border: 4px solid #f48fb1; border-radius: 15px;
-            padding: 10px; font-size: 14px; color: #004080; font-weight: bold; text-align: center;
+            padding: 10px 15px; font-size: 14px; color: #004080; font-weight: bold; text-align: center;
             box-shadow: 0 6px 12px rgba(0,0,0,0.15); pointer-events: none;
+            word-wrap: break-word; white-space: pre-wrap; /* 允許文字自動換行 */
         }
         .bubble::after { content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); border-width: 12px 12px 0; border-style: solid; border-color: #f48fb1 transparent transparent transparent; }
         
@@ -120,7 +124,7 @@
             .move-btn { padding: 12px 25px; font-size: 16px; }
             #girl { width: 100px; height: 190px; bottom: 70px; }
             .boy { width: 100px; height: 210px; bottom: 70px; }
-            .bubble { width: 140px; font-size: 12px; bottom: 250px; left: -20px; }
+            .bubble { max-width: 160px; font-size: 12px; bottom: 250px; } /* 🌟 手機版對話框微調 */
             @keyframes walkBounce { 0% { bottom: 70px; } 100% { bottom: 80px; } }
             
             #overlay h1 { font-size: 24px; }
@@ -296,11 +300,12 @@
     let lives = 3;
     let targetScores = [50, 100, 150]; 
     
-    let cameraX = 0; let worldWidth = 3000; let viewWidth = 900;
+    /* 🌟 將世界寬度變成 6000 🌟 */
+    let cameraX = 0; let worldWidth = 6000; let viewWidth = 900;
     let moveDirection = 0; let animationFrame; let spawnTimer;
     
     let boyBag = []; 
-    let questionBag = []; // --- 新增：題目抽籤桶 ---
+    let questionBag = []; 
     let mistakes = []; 
 
     function startGame() {
@@ -313,10 +318,9 @@
         lives = 3;
         cameraX = 0;
         
-        // --- 遊戲開始時，重置並洗牌男生跟題目 ---
         boyBag = []; 
-        questionBag = [...questions]; // 複製一份題庫過來
-        questionBag.sort(() => Math.random() - 0.5); // 將 100 題徹底洗牌
+        questionBag = [...questions]; 
+        questionBag.sort(() => Math.random() - 0.5); 
         
         mistakes = []; 
         
@@ -376,7 +380,8 @@
         let attempts = 0;
 
         while (!isSafe && attempts < 10) {
-            boyX = Math.random() * (worldWidth - 200) + 100;
+            // 🌟 縮小男生出現的邊界，避免太靠近螢幕左右邊緣導致氣泡被切到
+            boyX = Math.random() * (worldWidth - 400) + 200;
             isSafe = true;
             let existingBoys = document.querySelectorAll('.boy');
 
@@ -392,13 +397,11 @@
 
         if (!isSafe) return;
 
-        // --- 抽籤桶機制：從 questionBag 抽題目 ---
         if (questionBag.length === 0) {
-            // 如果 100 題都被抽完了，再重新洗牌一次
             questionBag = [...questions];
             questionBag.sort(() => Math.random() - 0.5); 
         }
-        let q = questionBag.pop(); // 抽出一題，並把它從籤筒拿走
+        let q = questionBag.pop(); 
         
         if (boyBag.length === 0) {
             boyBag = [1, 2, 3, 4, 5, 6, 7];
@@ -519,8 +522,6 @@
         
         currentLevel++; score = 0; cameraX = 0; 
         
-        // --- 進入下一關時，我們不重置 questionBag ---
-        // 這樣上一關出過的題目，下一關就不會再出現囉！
         boyBag = [];
         mistakes = []; 
         
