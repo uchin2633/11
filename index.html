@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>衛教電眼美女 - 支援鍵盤完美版</title>
+    <title>衛教電眼美女 - 題目不重複完美版</title>
     <style>
         /* --- 全域設定 --- */
         body {
@@ -298,7 +298,9 @@
     
     let cameraX = 0; let worldWidth = 3000; let viewWidth = 900;
     let moveDirection = 0; let animationFrame; let spawnTimer;
+    
     let boyBag = []; 
+    let questionBag = []; // --- 新增：題目抽籤桶 ---
     let mistakes = []; 
 
     function startGame() {
@@ -310,7 +312,12 @@
         score = 0;
         lives = 3;
         cameraX = 0;
+        
+        // --- 遊戲開始時，重置並洗牌男生跟題目 ---
         boyBag = []; 
+        questionBag = [...questions]; // 複製一份題庫過來
+        questionBag.sort(() => Math.random() - 0.5); // 將 100 題徹底洗牌
+        
         mistakes = []; 
         
         document.getElementById("boys-container").innerHTML = "";
@@ -361,7 +368,6 @@
         animationFrame = requestAnimationFrame(gameLoop);
     }
 
-    /* --- 防碰撞雷達邏輯 --- */
     function spawnBoy() {
         if (document.querySelectorAll('.boy').length > 5) return;
         
@@ -386,7 +392,13 @@
 
         if (!isSafe) return;
 
-        let q = questions[Math.floor(Math.random() * questions.length)];
+        // --- 抽籤桶機制：從 questionBag 抽題目 ---
+        if (questionBag.length === 0) {
+            // 如果 100 題都被抽完了，再重新洗牌一次
+            questionBag = [...questions];
+            questionBag.sort(() => Math.random() - 0.5); 
+        }
+        let q = questionBag.pop(); // 抽出一題，並把它從籤筒拿走
         
         if (boyBag.length === 0) {
             boyBag = [1, 2, 3, 4, 5, 6, 7];
@@ -505,7 +517,11 @@
         document.getElementById("overlay").style.display = "none";
         document.getElementById("mistakes-container").innerHTML = ""; 
         
-        currentLevel++; score = 0; cameraX = 0; boyBag = [];
+        currentLevel++; score = 0; cameraX = 0; 
+        
+        // --- 進入下一關時，我們不重置 questionBag ---
+        // 這樣上一關出過的題目，下一關就不會再出現囉！
+        boyBag = [];
         mistakes = []; 
         
         document.getElementById("boys-container").innerHTML = ""; 
@@ -538,21 +554,17 @@
     }
 
     /* ========================================= */
-    /* ⌨️ 新增：鍵盤控制事件監聽器                 */
+    /* ⌨️ 鍵盤控制事件監聽器                       */
     /* ========================================= */
     window.addEventListener('keydown', function(e) {
-        // 如果按下左鍵或是 A 鍵
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
             startMoving(-1);
-        } 
-        // 如果按下右鍵或是 D 鍵
-        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
             startMoving(1);
         }
     });
 
     window.addEventListener('keyup', function(e) {
-        // 只要放開左右鍵或 AD 鍵，就停止移動
         if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || 
             e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
             stopMoving();
