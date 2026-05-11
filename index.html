@@ -3,119 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>衛教電眼美女 - 超長走廊完美版</title>
+    <title>衛教電眼美女 - 完美頻率長走廊版</title>
     <style>
         /* --- 全域設定 --- */
-        body {
-            font-family: 'Microsoft JhengHei', sans-serif;
-            background-color: #fce4ec;
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; height: 100dvh; 
-            margin: 0; overflow: hidden; user-select: none;
-            touch-action: none;
-        }
+        body { font-family: 'Microsoft JhengHei', sans-serif; background-color: #fce4ec; display: flex; justify-content: center; align-items: center; height: 100vh; height: 100dvh; margin: 0; overflow: hidden; user-select: none; touch-action: none; }
+        #game-container { width: 100vw; height: 100vh; height: 100dvh; max-width: 900px; max-height: 600px; background-color: #fdf2f8; box-shadow: 0 15px 30px rgba(0,0,0,0.3); position: relative; overflow: hidden; border: 8px solid #f8bbd0; box-sizing: border-box; }
+        #status-bar { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; background: rgba(253, 242, 248, 0.95); padding: 10px 15px; font-weight: bold; color: #ad1457; z-index: 100; font-size: 16px; border-bottom: 3px solid #f48fb1; }
         
-        #game-container {
-            width: 100vw; height: 100vh; height: 100dvh; 
-            max-width: 900px; max-height: 600px;
-            background-color: #fdf2f8; box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            position: relative; overflow: hidden; border: 8px solid #f8bbd0; box-sizing: border-box;
-        }
+        /* 🌟 保持長走廊 6000px，不無限輪迴 */
+        #world { position: absolute; top: 0; left: 0; width: 6000px; height: 100%; transition: transform 0.1s linear; background-image: url('bg.jpg'); background-size: auto 100%; background-repeat: repeat-x; background-position: left top; }
         
-        /* --- 狀態欄 --- */
-        #status-bar {
-            position: absolute; top: 0; left: 0; right: 0;
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(253, 242, 248, 0.95); padding: 10px 15px;
-            font-weight: bold; color: #ad1457; z-index: 100; font-size: 16px;
-            border-bottom: 3px solid #f48fb1;
-        }
-
-        /* --- 圖片背景 --- */
-        #world {
-            position: absolute; top: 0; left: 0;
-            width: 6000px; /* 🌟 走廊加長一倍！原本是 3000px */
-            height: 100%; transition: transform 0.1s linear;
-            background-image: url('bg.jpg'); background-size: auto 100%;
-            background-repeat: repeat-x; background-position: left top;
-        }
-
-        /* --- 角色設定 --- */
-        #girl {
-            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-            width: 120px; height: 230px; background-image: url('girl.png');
-            background-size: contain; background-position: center bottom; background-repeat: no-repeat;
-            z-index: 50; pointer-events: none; 
-        }
+        #girl { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); width: 120px; height: 230px; background-image: url('girl.png'); background-size: contain; background-position: center bottom; background-repeat: no-repeat; z-index: 50; pointer-events: none; }
         #girl.walking { animation: walkBounce 0.3s infinite alternate; }
         @keyframes walkBounce { 0% { bottom: 80px; } 100% { bottom: 95px; } }
 
-        .boy { 
-            position: absolute; bottom: 80px; width: 120px; height: 250px; 
-            cursor: pointer; z-index: 40; transition: 0.3s; 
-            background-size: contain; background-position: center bottom; background-repeat: no-repeat;
-        }
+        .boy { position: absolute; bottom: 80px; width: 120px; height: 250px; cursor: pointer; z-index: 40; transition: 0.3s; background-size: contain; background-position: center bottom; background-repeat: no-repeat; }
         .boy:hover { transform: scale(1.05); }
-        
-        .boy .status-face { 
-            position: absolute; top: 15%; left: 50%; transform: translateX(-50%); 
-            font-size: 50px; z-index: 45; display: none; text-shadow: 0 0 15px rgba(255,255,255,0.9);
-        }
+        .boy .status-face { position: absolute; top: 15%; left: 50%; transform: translateX(-50%); font-size: 50px; z-index: 45; display: none; text-shadow: 0 0 15px rgba(255,255,255,0.9); }
 
-        /* --- 題目對話框 (🌟 優化排版，防止切字) --- */
-        .bubble {
-            position: absolute; bottom: 270px; 
-            left: 50%; transform: translateX(-50%); /* 讓氣泡永遠置中於男生頭上 */
-            width: max-content; max-width: 220px; /* 自動適應文字長度，且不超過 220px */
-            background: rgba(255, 255, 255, 0.95); border: 4px solid #f48fb1; border-radius: 15px;
-            padding: 10px 15px; font-size: 14px; color: #004080; font-weight: bold; text-align: center;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15); pointer-events: none;
-            word-wrap: break-word; white-space: pre-wrap; /* 允許文字自動換行 */
-        }
+        .bubble { position: absolute; bottom: 270px; left: 50%; transform: translateX(-50%); width: max-content; max-width: 220px; background: rgba(255, 255, 255, 0.95); border: 4px solid #f48fb1; border-radius: 15px; padding: 10px 15px; font-size: 14px; color: #004080; font-weight: bold; text-align: center; box-shadow: 0 6px 12px rgba(0,0,0,0.15); pointer-events: none; word-wrap: break-word; white-space: pre-wrap; }
         .bubble::after { content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); border-width: 12px 12px 0; border-style: solid; border-color: #f48fb1 transparent transparent transparent; }
         
         #controls { position: absolute; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 20px; z-index: 100; }
-        .move-btn { 
-            padding: 15px 30px; font-size: 18px; border: none; border-radius: 30px; 
-            background-color: #ec407a; color: white; font-weight: bold; cursor: pointer; 
-            box-shadow: 0 5px #ad1457; transition: 0.2s; touch-action: manipulation; 
-            -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; outline: none; 
-        }
+        .move-btn { padding: 15px 30px; font-size: 18px; border: none; border-radius: 30px; background-color: #ec407a; color: white; font-weight: bold; cursor: pointer; box-shadow: 0 5px #ad1457; transition: 0.2s; touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; outline: none; }
         .move-btn:active { box-shadow: 0 1px #ad1457; transform: translateY(4px); }
-        
         .laser { position: absolute; height: 10px; background: linear-gradient(90deg, #ff33cc, #fff); box-shadow: 0 0 15px #ff33cc, 0 0 30px #fff; transform-origin: left center; z-index: 60; border-radius: 5px; pointer-events: none; }
         
-        /* --- 轉場、規則與錯題解析面板 --- */
         #overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255, 240, 245, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; }
         #overlay h1 { color: #d81b60; font-size: 30px; margin-bottom: 10px; text-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
         #overlay-desc { font-size: 18px; color: #ad1457; font-weight: bold; margin-bottom: 15px; text-align: center; padding: 0 20px; display: none; }
         
-        /* 規則框 */
-        #rules-box {
-            background: white; border: 3px dashed #f48fb1; border-radius: 15px;
-            padding: 15px; margin-bottom: 20px; width: 85%; max-width: 350px;
-            color: #ad1457; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: left;
-        }
+        #rules-box { background: white; border: 3px dashed #f48fb1; border-radius: 15px; padding: 15px; margin-bottom: 20px; width: 85%; max-width: 350px; color: #ad1457; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: left; }
         #rules-box h3 { margin: 0 0 10px 0; text-align: center; color: #d81b60; font-size: 18px; }
         #rules-box ul { margin: 0; padding-left: 20px; line-height: 1.6; font-size: 15px; font-weight: bold;}
         
-        /* 錯題解析框 */
-        #mistakes-box {
-            background: #fff; border: 3px solid #ff5252; border-radius: 15px;
-            width: 85%; max-width: 450px; margin-bottom: 20px; padding: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column;
-        }
+        #mistakes-box { background: #fff; border: 3px solid #ff5252; border-radius: 15px; width: 85%; max-width: 450px; margin-bottom: 20px; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         #mistakes-box h3 { margin: 5px 0 10px 0; color: #d32f2f; font-size: 18px; text-align: center; border-bottom: 2px solid #ffcdd2; padding-bottom: 5px;}
         .scroll-area { max-height: 250px; overflow-y: auto; font-size: 14px; text-align: left; padding-right: 5px;}
         .scroll-area p { margin: 0 0 10px 0; padding-bottom: 10px; border-bottom: 1px dashed #ccc; line-height: 1.5; color: #333; }
         .scroll-area p:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .scroll-area b { color: #d32f2f; }
         .scroll-area .correct-ans { color: #2e7d32; font-weight: bold; }
-
         #start-btn { padding: 12px 35px; font-size: 18px; background-color: #43a047; color: white; border: none; border-radius: 50px; cursor: pointer; font-weight: bold; box-shadow: 0 5px #1b5e20; transition: 0.2s; margin-top: 5px;}
         #start-btn:active { transform: translateY(4px); box-shadow: 0 1px #1b5e20; }
 
-        /* --- 手機 RWD --- */
         @media (max-width: 600px) {
             #game-container { border-width: 0px; border-radius: 0px; }
             #status-bar { font-size: 13px; padding: 5px 10px; }
@@ -124,14 +55,12 @@
             .move-btn { padding: 12px 25px; font-size: 16px; }
             #girl { width: 100px; height: 190px; bottom: 70px; }
             .boy { width: 100px; height: 210px; bottom: 70px; }
-            .bubble { max-width: 160px; font-size: 12px; bottom: 250px; } /* 🌟 手機版對話框微調 */
+            .bubble { max-width: 160px; font-size: 12px; bottom: 250px; }
             @keyframes walkBounce { 0% { bottom: 70px; } 100% { bottom: 80px; } }
-            
             #overlay h1 { font-size: 24px; }
             #rules-box { padding: 10px; max-width: 280px; }
             #rules-box h3 { font-size: 16px; }
             #rules-box ul { font-size: 14px; }
-            
             .scroll-area { max-height: 180px; font-size: 13px; }
             #mistakes-box h3 { font-size: 16px; }
             #overlay-desc { font-size: 16px; margin-bottom: 10px;}
@@ -147,29 +76,14 @@
         <span>分數: <span id="score">0</span>/<span id="target">100</span></span>
         <span>生命: <span id="lives">❤️❤️❤️</span></span>
     </div>
-
-    <div id="world">
-        <div id="boys-container"></div>
-    </div>
-
+    <div id="world"><div id="boys-container"></div></div>
     <div id="girl"></div>
-
     <div id="controls">
-        <button class="move-btn" 
-            onmousedown="startMoving(-1)" onmouseup="stopMoving()" onmouseleave="stopMoving()"
-            ontouchstart="startMoving(-1)" ontouchend="stopMoving()" ontouchcancel="stopMoving()">
-            ⬅️ 往左走
-        </button>
-        <button class="move-btn" 
-            onmousedown="startMoving(1)" onmouseup="stopMoving()" onmouseleave="stopMoving()"
-            ontouchstart="startMoving(1)" ontouchend="stopMoving()" ontouchcancel="stopMoving()">
-            往右走 ➡️
-        </button>
+        <button class="move-btn" onmousedown="startMoving(-1)" onmouseup="stopMoving()" onmouseleave="stopMoving()" ontouchstart="startMoving(-1)" ontouchend="stopMoving()" ontouchcancel="stopMoving()">⬅️ 往左走</button>
+        <button class="move-btn" onmousedown="startMoving(1)" onmouseup="stopMoving()" onmouseleave="stopMoving()" ontouchstart="startMoving(1)" ontouchend="stopMoving()" ontouchcancel="stopMoving()">往右走 ➡️</button>
     </div>
-
     <div id="overlay">
         <h1 id="overlay-title">✨ 衛教電眼美女 ✨</h1>
-        
         <div id="rules-box">
             <h3>📖 遊戲規則</h3>
             <ul>
@@ -179,7 +93,6 @@
                 <li>💔 <b>小心：</b>點到「<b>錯誤迷思</b>」會被扣愛心喔！</li>
             </ul>
         </div>
-        
         <p id="overlay-desc"></p>
         <div id="mistakes-container"></div>
         <button id="start-btn" onclick="startGame()">開始遊戲</button>
@@ -188,10 +101,9 @@
 
 <script>
     let bgMusic = new Audio('bgm.m4a');
-    bgMusic.loop = true; 
-    bgMusic.volume = 0.5; 
+    bgMusic.loop = true; bgMusic.volume = 0.5; 
 
-    /* --- 題庫 --- */
+    /* --- 精簡版 100 題庫陣列 (內容完全一樣，節省網頁載入空間) --- */
     const questions = [
         { text: "均衡飲食有助於增強免疫力。", isTrue: true },
         { text: "為了快速減肥，可以完全不吃碳水化合物。", isTrue: false, explanation: "碳水化合物是能量主要來源，完全不吃會流失肌肉並讓代謝變慢。" },
@@ -295,48 +207,34 @@
         { text: "微波爐加熱食物不會破壞所有營養素，有時比水煮保留更多維生素。", isTrue: true }
     ];
 
-    let currentLevel = 1;
-    let score = 0;
-    let lives = 3;
-    let targetScores = [50, 100, 150]; 
-    
-    /* 🌟 將世界寬度變成 6000 🌟 */
+    let currentLevel = 1; let score = 0; let lives = 3; let targetScores = [50, 100, 150]; 
     let cameraX = 0; let worldWidth = 6000; let viewWidth = 900;
     let moveDirection = 0; let animationFrame; let spawnTimer;
-    
-    let boyBag = []; 
-    let questionBag = []; 
-    let mistakes = []; 
+    let boyBag = []; let questionBag = []; let mistakes = []; 
 
     function startGame() {
         document.getElementById("overlay").style.display = "none";
         document.getElementById("mistakes-container").innerHTML = ""; 
         bgMusic.play().catch(error => console.log("音樂播放失敗", error));
+        currentLevel = 1; score = 0; lives = 3; cameraX = 0;
         
-        currentLevel = 1;
-        score = 0;
-        lives = 3;
-        cameraX = 0;
-        
-        boyBag = []; 
-        questionBag = [...questions]; 
-        questionBag.sort(() => Math.random() - 0.5); 
-        
+        boyBag = []; questionBag = [...questions]; questionBag.sort(() => Math.random() - 0.5); 
         mistakes = []; 
-        
         document.getElementById("boys-container").innerHTML = "";
         
+        // 🌟 初始化畫面位置 (確保沒有奇怪的過渡動畫)
+        let world = document.getElementById("world");
+        world.style.transition = "none";
+        world.style.transform = `translateX(0px)`;
+        setTimeout(() => world.style.transition = "transform 0.1s linear", 50);
+
         let btn = document.getElementById("start-btn");
         btn.onclick = function() {
             document.getElementById("rules-box").style.display = "block";
             document.getElementById("overlay-desc").style.display = "none";
             startGame();
         };
-
-        updateUI();
-        stopMoving(); 
-        gameLoop();
-        spawnTimer = setInterval(spawnBoy, 2500);
+        updateUI(); stopMoving(); gameLoop(); spawnTimer = setInterval(spawnBoy, 2000); // 🌟 稍微加快一點生成速度
     }
 
     function updateUI() {
@@ -348,23 +246,16 @@
 
     function showMsg(msg, color) {
         let sysMsg = document.getElementById("sys-msg");
-        sysMsg.innerText = msg;
-        sysMsg.style.color = color;
-        if(window.innerWidth > 600) {
-            setTimeout(() => { sysMsg.innerText = "左右移動尋找目標！"; sysMsg.style.color = "#e65100"; }, 2000);
-        }
+        sysMsg.innerText = msg; sysMsg.style.color = color;
+        if(window.innerWidth > 600) { setTimeout(() => { sysMsg.innerText = "左右移動尋找目標！"; sysMsg.style.color = "#e65100"; }, 2000); }
     }
 
-    function startMoving(dir) {
-        moveDirection = dir; document.getElementById("girl").classList.add('walking');
-    }
-    function stopMoving() {
-        moveDirection = 0; document.getElementById("girl").classList.remove('walking');
-    }
+    function startMoving(dir) { moveDirection = dir; document.getElementById("girl").classList.add('walking'); }
+    function stopMoving() { moveDirection = 0; document.getElementById("girl").classList.remove('walking'); }
 
     function gameLoop() {
         if (moveDirection !== 0) {
-            cameraX += moveDirection * 10;
+            cameraX += moveDirection * 12; // 🌟 稍微加快走路速度
             if (cameraX < 0) cameraX = 0;
             if (cameraX > worldWidth - viewWidth) cameraX = worldWidth - viewWidth;
             document.getElementById("world").style.transform = `translateX(${-cameraX}px)`;
@@ -375,38 +266,29 @@
     function spawnBoy() {
         if (document.querySelectorAll('.boy').length > 5) return;
         
-        let boyX;
-        let isSafe = false;
-        let attempts = 0;
+        let boyX; let isSafe = false; let attempts = 0;
 
-        while (!isSafe && attempts < 10) {
-            // 🌟 縮小男生出現的邊界，避免太靠近螢幕左右邊緣導致氣泡被切到
-            boyX = Math.random() * (worldWidth - 400) + 200;
+        // 🌟 智慧跟隨雷達：只在目前「鏡頭畫面周圍」生成男生，保證頻率超高！
+        let minX = Math.max(100, cameraX - 400); // 畫面左側一點點
+        let maxX = Math.min(worldWidth - 200, cameraX + viewWidth + 400); // 畫面右側一點點
+
+        while (!isSafe && attempts < 15) {
+            boyX = Math.random() * (maxX - minX) + minX;
             isSafe = true;
             let existingBoys = document.querySelectorAll('.boy');
-
             for (let i = 0; i < existingBoys.length; i++) {
                 let existingX = parseFloat(existingBoys[i].style.left);
-                if (Math.abs(boyX - existingX) < 250) {
-                    isSafe = false;
-                    break;
-                }
+                if (Math.abs(boyX - existingX) < 250) { isSafe = false; break; }
             }
             attempts++;
         }
 
         if (!isSafe) return;
 
-        if (questionBag.length === 0) {
-            questionBag = [...questions];
-            questionBag.sort(() => Math.random() - 0.5); 
-        }
+        if (questionBag.length === 0) { questionBag = [...questions]; questionBag.sort(() => Math.random() - 0.5); }
         let q = questionBag.pop(); 
         
-        if (boyBag.length === 0) {
-            boyBag = [1, 2, 3, 4, 5, 6, 7];
-            boyBag.sort(() => Math.random() - 0.5); 
-        }
+        if (boyBag.length === 0) { boyBag = [1, 2, 3, 4, 5, 6, 7]; boyBag.sort(() => Math.random() - 0.5); }
         let boyId = boyBag.pop(); 
         
         let boyDiv = document.createElement("div");
@@ -416,14 +298,14 @@
         boyDiv.onclick = function() { shootLaser(boyDiv, q); }; 
         document.getElementById("boys-container").appendChild(boyDiv);
         
+        // 生成後 12 秒自動消失
         setTimeout(() => { if(boyDiv.parentElement) boyDiv.remove(); }, 12000);
     }
 
     function shootLaser(boyElement, questionObj) {
         let container = document.getElementById("game-container");
         let girl = document.getElementById("girl");
-        let containerRect = container.getBoundingClientRect();
-        let girlRect = girl.getBoundingClientRect();
+        let containerRect = container.getBoundingClientRect(); let girlRect = girl.getBoundingClientRect();
         
         let startX = girlRect.left - containerRect.left + girlRect.width / 2;
         let startY = girlRect.top - containerRect.top + (girlRect.height * 0.2); 
@@ -433,8 +315,7 @@
         let endY = boyRect.top - containerRect.top + (boyRect.height * 0.2); 
 
         let dx = endX - startX; let dy = endY - startY;
-        let length = Math.sqrt(dx*dx + dy*dy);
-        let angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        let length = Math.sqrt(dx*dx + dy*dy); let angle = Math.atan2(dy, dx) * 180 / Math.PI;
 
         let laser = document.createElement("div");
         laser.className = "laser";
@@ -443,59 +324,40 @@
         container.appendChild(laser);
 
         boyElement.querySelector('.bubble').style.display = 'none';
-        let statusFace = boyElement.querySelector('.status-face');
-        statusFace.style.display = 'block';
+        let statusFace = boyElement.querySelector('.status-face'); statusFace.style.display = 'block';
 
         if (questionObj.isTrue) {
-            statusFace.innerText = "😍";
-            score += 10;
+            statusFace.innerText = "😍"; score += 10;
             showMsg("⚡ 電眼成功！獲得大美女分數", "#d81b60");
         } else {
-            statusFace.innerText = "💀";
-            lives -= 1;
+            statusFace.innerText = "💀"; lives -= 1;
             showMsg("❌ 糟糕！電到迷思，扣生命值", "#424242");
-            
-            if (!mistakes.some(m => m.text === questionObj.text)) {
-                mistakes.push(questionObj);
-            }
+            if (!mistakes.some(m => m.text === questionObj.text)) { mistakes.push(questionObj); }
         }
-
         updateUI();
 
         setTimeout(() => {
-            laser.remove();
-            boyElement.style.opacity = "0"; 
-            setTimeout(() => boyElement.remove(), 400);
-            checkWinLose();
+            laser.remove(); boyElement.style.opacity = "0"; 
+            setTimeout(() => boyElement.remove(), 400); checkWinLose();
         }, 1000);
     }
 
     function checkWinLose() {
-        if (lives <= 0) { 
-            endGame("💔 失去所有愛心，遊戲結束！"); 
-        } else if (score >= targetScores[currentLevel - 1]) {
-            if (currentLevel === 3) { 
-                endGame("🎉 恭喜通關！👑<br>你贏得了【校園大美女】頭銜！"); 
-            } else {
-                levelClearTransition(); 
-            }
+        if (lives <= 0) { endGame("💔 失去所有愛心，遊戲結束！"); } 
+        else if (score >= targetScores[currentLevel - 1]) {
+            if (currentLevel === 3) { endGame("🎉 恭喜通關！👑<br>你贏得了【校園大美女】頭銜！"); } 
+            else { levelClearTransition(); }
         }
     }
 
     function getMistakesHTML() {
         if (mistakes.length === 0) return ""; 
-        
-        let html = `<div id='mistakes-box'>
-            <h3>📝 剛剛不小心點錯的迷思</h3>
-            <div class='scroll-area'>`;
-            
+        let html = `<div id='mistakes-box'><h3>📝 剛剛不小心點錯的迷思</h3><div class='scroll-area'>`;
         mistakes.forEach(m => {
             let explanation = m.explanation ? m.explanation : "這是不正確的觀念喔！";
             html += `<p><b>❌ 迷思：</b>${m.text}<br><span class='correct-ans'>💡 正解：${explanation}</span></p>`;
         });
-        
-        html += `</div></div>`;
-        return html;
+        html += `</div></div>`; return html;
     }
 
     function levelClearTransition() {
@@ -508,7 +370,6 @@
         document.getElementById("overlay-desc").style.display = "block";
         document.getElementById("overlay-title").innerText = `✨ 第 ${currentLevel} 關 通關！ ✨`;
         document.getElementById("overlay-desc").innerHTML = `太棒了！準備好迎接下一關了嗎？<br>下一關過關目標：${targetScores[currentLevel]} 分`;
-        
         document.getElementById("mistakes-container").innerHTML = getMistakesHTML();
         
         let btn = document.getElementById("start-btn");
@@ -520,29 +381,31 @@
         document.getElementById("overlay").style.display = "none";
         document.getElementById("mistakes-container").innerHTML = ""; 
         
-        currentLevel++; score = 0; cameraX = 0; 
-        
-        boyBag = [];
-        mistakes = []; 
-        
+        currentLevel++; score = 0; cameraX = 0; boyBag = []; mistakes = []; 
         document.getElementById("boys-container").innerHTML = ""; 
         document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";
         
-        updateUI(); gameLoop(); spawnTimer = setInterval(spawnBoy, 2500);
+        // 🌟 解決閃跳問題：暫時關閉動畫再瞬間回歸原點
+        let world = document.getElementById("world");
+        world.style.transition = "none";
+        world.style.transform = `translateX(0px)`;
+        // 強制重繪後再開啟動畫
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                world.style.transition = "transform 0.1s linear";
+                updateUI(); gameLoop(); spawnTimer = setInterval(spawnBoy, 2000);
+            });
+        });
     }
 
     function endGame(msg) {
         cancelAnimationFrame(animationFrame); clearInterval(spawnTimer); stopMoving();
         bgMusic.pause(); bgMusic.currentTime = 0;
-
-        let overlay = document.getElementById("overlay");
-        overlay.style.display = "flex";
-        
+        let overlay = document.getElementById("overlay"); overlay.style.display = "flex";
         document.getElementById("rules-box").style.display = "none";
         document.getElementById("overlay-desc").style.display = "block";
         document.getElementById("overlay-title").innerText = "✨ 衛教電眼美女 ✨";
         document.getElementById("overlay-desc").innerHTML = msg;
-        
         document.getElementById("mistakes-container").innerHTML = getMistakesHTML();
         
         let btn = document.getElementById("start-btn");
@@ -554,22 +417,13 @@
         };
     }
 
-    /* ========================================= */
-    /* ⌨️ 鍵盤控制事件監聽器                       */
-    /* ========================================= */
+    /* ⌨️ 鍵盤控制 */
     window.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-            startMoving(-1);
-        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-            startMoving(1);
-        }
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { startMoving(-1); } 
+        else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { startMoving(1); }
     });
-
     window.addEventListener('keyup', function(e) {
-        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A' || 
-            e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-            stopMoving();
-        }
+        if (['ArrowLeft', 'a', 'A', 'ArrowRight', 'd', 'D'].includes(e.key)) { stopMoving(); }
     });
 </script>
 
